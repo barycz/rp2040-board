@@ -1,0 +1,25 @@
+Comment,Designator,Footprint,LCSC Part #
+100n Unpolarized capacitor,"C1,C3,C4,C7,C8,C9,C10,C11,C12,C13,C14,C23",C_0402_1005Metric,C1525
+1u Unpolarized capacitor,"C2,C5,C6,C15,C24",C_0402_1005Metric,C52923
+22p Unpolarized capacitor,"C16,C17",C_0402_1005Metric,C1555
+22u Unpolarized capacitor,"C18,C19,C22",C_0805_2012Metric,C45783
+4.7n Unpolarized capacitor,"C20,C21",C_0402_1005Metric,C1538
+SS34 Schottky diode,"D1,D2,D5",D_SMA,C8678
+Yellow Light emitting diode,D3,LED_0603_1608Metric,C72038
+Red Light emitting diode,D4,LED_0603_1608Metric,C2286
+USB_C_Receptacle_USB2.0_16P USB 2.0-only 16P Type-C Receptacle connector,J6,USB_C_Receptacle_G-Switch_GT-USB-7010ASV,C2765186
+1k Resistor,"R2,R7,R8",R_0402_1005Metric,C11702
+1R Resistor,"R3,R6",R_0603_1608Metric,C22936
+22 Resistor,"R4,R5",R_0402_1005Metric,C25092
+330 Resistor,"R9,R10",R_0402_1005Metric,C25104
+0 Resistor,"R11,R16",R_0603_1608Metric,C21189
+47 Resistor,R12,R_0603_1608Metric,C23182
+120 Resistor,R13,R_1206_3216Metric,C17909
+1k5 Resistor,"R14,R15",R_0402_1005Metric,C25867
+TS-1187A-B-A-B Single Pole Single Throw (SPST) switch,"SW1,SW3",SW_Push_1P1T_XKB_TS-1187A,C318884
+"W25Q128JVS 128Mb Serial Flash Memory, Standard/Dual/Quad SPI, SOIC-8",U1,SOIC-8_5.23x5.23mm_P1.27mm,C97521
+"SP485EEN-L/TR Half duplex RS-485/RS-422, 2.5 Mbps, ±15kV electro-static discharge (ESD) protection, no slew-rate, no low-power shutdown, with receiver/driver enable, 32 receiver drive capability, DIP-8 and SOIC-8",U2,SOIC-8_3.9x4.9mm_P1.27mm,C6855
+RP2040 A microcontroller by Raspberry Pi,U3,QFN-56-1EP_7x7mm_P0.4mm_EP3.2x3.2mm,C2040
+"AMS1117-3.3 Positive 60-250mA Low Dropout Regulator, Fixed Output, SOT-23",U4,SOT-223,C6186
+"OP07CDR Single Ultra-Low Offset Voltage Operational Amplifier, DIP-8/SOIC-8",U5,SOIC-8_3.9x4.9mm_P1.27mm,C7433
+"12MHz Four pin crystal, GND on pins 2 and 4",Y1,Crystal_SMD_3225-4Pin_3.2x2.5mm,C9002

@@ -1,18 +1,34 @@
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
+const pin_size_t LedYellow = 26;
+const pin_size_t LedRed = 27;
+
+const pin_size_t DmxTx = 24;
+const pin_size_t DmxRx = 25;
+const pin_size_t DmxRts = 23;
+
+// not using uart flow control as it does not work in arduino framework
+UART dmx(DmxTx, DmxRx, NC, NC);
 
 void setup() {
-	// put your setup code here, to run once:
-	int result = myFunction(2, 3);
+	pinMode(LedYellow, OUTPUT);
+	pinMode(LedRed, OUTPUT);
+
+	pinMode(DmxRts, OUTPUT);
+	digitalWrite(DmxRts, HIGH);
+
+	dmx.begin(250000);
+}
+
+void updateLeds() {
+	const PinStatus ledStates[] = {LOW, HIGH};
+	static uint8_t iter = 0;
+	digitalWrite(LedRed, ledStates[iter++ % 2]);
+	digitalWrite(LedYellow, ledStates[iter % 2]);
 }
 
 void loop() {
-	// put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-	return x + y;
+	dmx.println("test");
+	updateLeds();
+	sleep_ms(100);
 }

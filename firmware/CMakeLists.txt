@@ -24,4 +24,8 @@ pico_enable_stdio_uart(display-demo 0)
 
 pico_add_extra_outputs(display-demo)
 
-target_link_libraries(display-demo pico_stdlib hardware_i2c)
+target_link_libraries(display-demo
+	pico_stdlib
+	hardware_i2c
+	hardware_pwm
+)

@@ -9,6 +9,9 @@
 #include "pico/binary_info.h"
 #include "hardware/i2c.h"
 #include "hardware/pwm.h"
+#include "hardware/pio.h"
+
+#include "quadrature_encoder.pio.h"
 
 const uint LedYellow = 26;
 const uint LedRed = 27;
@@ -45,6 +48,11 @@ int main() {
 	gpio_init(RotarySW);
 	gpio_pull_up(RotarySW);
 
+	PIO pio = pio0;
+	const uint sm = 0;
+	pio_add_program(pio, &quadrature_encoder_program);
+	quadrature_encoder_program_init(pio, sm, RotaryA, 10000);
+
 	gpio_set_function(AudioPwm, GPIO_FUNC_PWM);
 	uint pwm_slice = pwm_gpio_to_slice_num(AudioPwm);
 	pwm_set_gpio_level(AudioPwm, 100);
@@ -67,22 +75,13 @@ int main() {
 
 		ssd1306_clear(&disp);
 		ssd1306_draw_string(&disp, 0, 0, 1, "Hello World!");
-		if (gpio_get(RotaryA)) {
-			ssd1306_draw_square(&disp, 0, 16, 16, 16);
-		} else {
-			ssd1306_draw_empty_square(&disp, 0, 16, 16, 16);
-		}
-		if (gpio_get(RotaryB)) {
-			ssd1306_draw_square(&disp, 32, 16, 16, 16);
-		} else {
-			ssd1306_draw_empty_square(&disp, 32, 16, 16, 16);
-		}
-		if (gpio_get(RotarySW)) {
-			ssd1306_draw_square(&disp, 64, 16, 16, 16);
-		} else {
-			ssd1306_draw_empty_square(&disp, 64, 16, 16, 16);
-		}
+
+		char buffer[12];
+		const int32_t encoderValue = quadrature_encoder_get_count(pio, sm);
+		snprintf(buffer, sizeof(buffer), "%d", encoderValue);
+		ssd1306_draw_string(&disp, 0, 16, 1, buffer);
 		ssd1306_show(&disp);
+		ssd1306_invert(&disp, gpio_get(RotarySW) == 0);
 
 		gpio_put(LedYellow, 0);
 		sleep_ms(20);

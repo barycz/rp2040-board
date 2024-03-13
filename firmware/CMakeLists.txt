@@ -19,6 +19,8 @@ add_executable(display-demo
 	lib/pico-ssd1306/ssd1306.c
 )
 
+pico_generate_pio_header(display-demo ${CMAKE_CURRENT_LIST_DIR}/src/quadrature_encoder.pio)
+
 pico_enable_stdio_usb(display-demo 1)
 pico_enable_stdio_uart(display-demo 0)
 
@@ -28,4 +30,5 @@ target_link_libraries(display-demo
 	pico_stdlib
 	hardware_i2c
 	hardware_pwm
+	hardware_pio
 )

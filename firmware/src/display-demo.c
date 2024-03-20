@@ -10,6 +10,7 @@
 #include "hardware/i2c.h"
 #include "hardware/pwm.h"
 #include "hardware/pio.h"
+#include "hardware/uart.h"
 
 #include "quadrature_encoder.pio.h"
 
@@ -25,10 +26,66 @@ const uint RotarySW = 19;
 const uint DmxTx = 24;
 const uint DmxRx = 25;
 const uint DmxRts = 23;
+uart_inst_t* const DmxUart = uart1;
+const uint DmxBaudRate = 250000;
+const uint DmxDataBits = 8;
+const uint DmxStopBits = 2;
+const uart_parity_t DmxParity = UART_PARITY_NONE;
+#define DMX_NUM_CHANNELS 512
+const uint DmxMinBreakUs = 92;
+const uint DmxMinMarkAfterBreak = 12;
 
 const uint DispSda = 28;
 const uint DispSck = 29;
 #define DISP_I2C (&i2c0_inst)
+
+// start code + channels
+uint8_t DmxBuffer[DMX_NUM_CHANNELS + 1];
+
+struct {
+	bool channelSelect;
+	int32_t currentChannel;
+	int32_t lastEncoderValue;
+	bool lastSwitchState;
+} DmxUi;
+
+uint8_t getDmxChannelData(uint channel) {
+	const uint offset = channel + 1; // buffer contains 1 byte start code
+	if (offset >= sizeof(DmxBuffer)) {
+		return 0;
+	}
+
+	return DmxBuffer[offset];
+}
+
+void updateDmxChannelData(uint channel, int32_t diff) {
+	const uint offset = channel + 1; // buffer contains 1 byte start code
+	if (offset >= sizeof(DmxBuffer)) {
+		return;
+	}
+
+	DmxBuffer[offset] += diff;
+}
+
+void sendDmxFrame() {
+	// switch to GPIO to transmit the break condition
+	gpio_init(DmxTx);
+	gpio_set_dir(DmxTx, GPIO_OUT);
+
+	// break
+	gpio_put(DmxTx, false);
+	sleep_us(DmxMinBreakUs);
+
+	// mark after break
+	gpio_put(DmxTx, true);
+	sleep_us(DmxMinMarkAfterBreak);
+
+	// switch to uart
+	gpio_set_function(DmxTx, GPIO_FUNC_UART);
+
+	// start code + channels
+	uart_write_blocking(DmxUart, DmxBuffer, sizeof(DmxBuffer));
+}
 
 int main() {
 	stdio_init_all();
@@ -38,6 +95,14 @@ int main() {
 
 	gpio_init(LedRed);
 	gpio_set_dir(LedRed, GPIO_OUT);
+
+	uart_init(DmxUart, DmxBaudRate);
+	uart_set_format(DmxUart, DmxDataBits, DmxStopBits, DmxParity);
+	gpio_set_function(DmxTx, GPIO_FUNC_UART);
+	gpio_set_function(DmxRx, GPIO_FUNC_UART);
+	gpio_init(DmxRts);
+	gpio_set_dir(DmxRts, GPIO_OUT);
+	gpio_put(DmxRts, true);
 
 	gpio_init(RotaryA);
 	gpio_pull_up(RotaryA);
@@ -74,14 +139,39 @@ int main() {
 		gpio_put(LedYellow, 1);
 
 		ssd1306_clear(&disp);
-		ssd1306_draw_string(&disp, 0, 0, 1, "Hello World!");
+		// there are 4 steps between each encoder notch
+		const int32_t encoderValue = quadrature_encoder_get_count(pio, sm) / 4;
+		const bool switchState = gpio_get(RotarySW);
+		if (switchState != DmxUi.lastSwitchState) {
+			// only switch modes when pressed, do nothing when released
+			if (switchState) {
+				DmxUi.channelSelect = !DmxUi.channelSelect;
+			}
 
-		char buffer[12];
-		const int32_t encoderValue = quadrature_encoder_get_count(pio, sm);
-		snprintf(buffer, sizeof(buffer), "%d", encoderValue);
+			DmxUi.lastSwitchState = switchState;
+		}
+
+		// we want CW rotation to be the positive direction, but the encoder value increases CCW
+		const int32_t encoderDiff = DmxUi.lastEncoderValue - encoderValue;
+		if (encoderDiff) {
+			if (DmxUi.channelSelect) {
+				DmxUi.currentChannel = MAX(MIN(DmxUi.currentChannel + encoderDiff, DMX_NUM_CHANNELS - 1), 0);
+			} else { // value select
+				updateDmxChannelData(DmxUi.currentChannel, encoderDiff * 2); // speedup
+			}
+
+			DmxUi.lastEncoderValue = encoderValue;
+		}
+
+		char buffer[64];
+		snprintf(buffer, sizeof(buffer), "%c Channel %d", DmxUi.channelSelect ? '>' : ' ', DmxUi.currentChannel);
+		ssd1306_draw_string(&disp, 0, 0, 1, buffer);
+
+		snprintf(buffer, sizeof(buffer), "%c Value %d", DmxUi.channelSelect ? ' ' : '>', getDmxChannelData(DmxUi.currentChannel));
 		ssd1306_draw_string(&disp, 0, 16, 1, buffer);
 		ssd1306_show(&disp);
-		ssd1306_invert(&disp, gpio_get(RotarySW) == 0);
+
+		sendDmxFrame();
 
 		gpio_put(LedYellow, 0);
 		sleep_ms(20);

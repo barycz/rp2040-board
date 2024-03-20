@@ -31,4 +31,5 @@ target_link_libraries(display-demo
 	hardware_i2c
 	hardware_pwm
 	hardware_pio
+	hardware_uart
 )

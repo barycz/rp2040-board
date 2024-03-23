@@ -1,0 +1,72 @@
+.program dmx512
+
+.define public NumCyclesPerBit 2
+; one bit is equal to 4us
+.define NumBreakBits 23
+.define NumMarkAfterBreakBits 3
+
+.wrap_target
+	pull         ; wait for the frame data
+	out y 8      ; first byte contains number of slots to send, 256 maximum
+
+; DMX break: keep low for at least 92us
+	set x (NumBreakBits - 1)
+break_loop:
+	set pins 0
+	jmp x-- break_loop
+
+; DMX mark after break: keep high for at least 12us
+; note that this instruction prolongs the break phase for one more cycle
+	set x (NumMarkAfterBreakBits - 1)
+mab_loop:
+	set pins 1
+	jmp x-- mab_loop
+
+; DMX slot: 1 start bit, 8 data bits, 2 stop bits
+slot_loop:
+	pull                                   ; stall before we do the start bit
+	set pins 0                             ; start bit
+	set x 7                                ; 2nd cycle of start bit
+bit_loop:
+	out pins 1
+	jmp x-- bit_loop
+
+	set pins 1 [NumCyclesPerBit * 2 - 1]   ; 2 stop bits
+	jmp y-- slot_loop
+
+.wrap
+
+% c-sdk {
+#include "hardware/clocks.h"
+
+const uint32_t DmxBaudRate = 250000;
+const uint32_t DmxMinBreakUs = 92;
+const uint32_t DmxMinMarkAfterBreakUs = 12;
+#define DMX512_NUM_SUPPORTED_SLOTS 256
+
+typedef struct {
+	uint8_t numSlotsMinusOne; // for 256 slots set to 255
+	uint8_t slots[DMX512_NUM_SUPPORTED_SLOTS];
+} dmx512_output_buffer_t;
+
+static inline void dmx512_program_init(PIO pio, uint sm, uint offset, uint pinTx) {
+	pio_gpio_init(pio, pinTx);
+	pio_sm_set_consecutive_pindirs(pio, sm, pinTx, 1, true);
+
+	pio_sm_config c = dmx512_program_get_default_config(offset);
+	sm_config_set_out_pins(&c, pinTx, 1);
+	sm_config_set_set_pins(&c, pinTx, 1);
+	sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_TX);
+
+	const uint64_t clock = clock_get_hz(clk_sys);
+	const uint64_t ratio8 = (clock << 8) / DmxBaudRate / dmx512_NumCyclesPerBit;
+	const uint16_t ratioInt = ratio8 >> 8;
+	const uint8_t ratioFrac = ratio8 & 0xff;
+	sm_config_set_clkdiv_int_frac(&c, ratioInt, ratioFrac);
+
+	sm_config_set_out_shift(&c, true, false, 8);
+	pio_sm_init(pio, sm, offset, &c);
+	pio_sm_set_enabled(pio, sm, true);
+}
+
+%}

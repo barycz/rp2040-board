@@ -12,8 +12,10 @@
 #include "hardware/pio.h"
 #include "hardware/uart.h"
 #include "hardware/timer.h"
+#include "hardware/dma.h"
 
 #include "quadrature_encoder.pio.h"
+#include "dmx512.pio.h"
 
 const uint LedYellow = 26;
 const uint LedRed = 27;
@@ -28,13 +30,10 @@ const uint DmxTx = 24;
 const uint DmxRx = 25;
 const uint DmxRts = 23;
 uart_inst_t* const DmxUart = uart1;
-const uint DmxBaudRate = 250000;
 const uint DmxDataBits = 8;
 const uint DmxStopBits = 2;
 const uart_parity_t DmxParity = UART_PARITY_NONE;
 #define DMX_NUM_CHANNELS 512
-const uint DmxMinBreakUs = 92;
-const uint DmxMinMarkAfterBreak = 12;
 
 const uint DispSda = 28;
 const uint DispSck = 29;
@@ -45,7 +44,11 @@ uint8_t DmxBuffer[DMX_NUM_CHANNELS + 1];
 
 ssd1306_t disp;
 PIO encoderPio = pio0;
-const uint encoderSm = 0;
+const uint encoderSm = 0; // TODO: pio_claim_unused_sm
+PIO dmx512Pio = pio1; // TODO: try to use the same pio
+const uint dmx512Sm = 0; // TODO: use different SM
+const uint dmx512DmaDreq = DREQ_PIO1_TX0;
+uint dmx512DmaChannel;
 
 struct {
 	bool channelSelect;
@@ -86,13 +89,25 @@ void sendDmxFrameBlocking() {
 
 	// mark after break
 	gpio_put(DmxTx, true);
-	sleep_us(DmxMinMarkAfterBreak);
+	sleep_us(DmxMinMarkAfterBreakUs);
 
 	// switch to uart
 	gpio_set_function(DmxTx, GPIO_FUNC_UART);
 
 	// start code + channels
 	uart_write_blocking(DmxUart, DmxBuffer, sizeof(DmxBuffer));
+}
+
+void sendDmxFrameDma() {
+	dma_channel_wait_for_finish_blocking(dmx512DmaChannel);
+
+	static dmx512_output_buffer_t dmxBuffer;
+	static const uint8_t numSlotsToSend = 2; // TODO: set to low count for easier debugging
+	dmxBuffer.numSlotsMinusOne = numSlotsToSend - 1;
+	memcpy(dmxBuffer.slots, DmxBuffer, numSlotsToSend);
+
+	dma_channel_set_trans_count(dmx512DmaChannel, numSlotsToSend + 1, false);
+	dma_channel_set_read_addr(dmx512DmaChannel, &dmxBuffer, true);
 }
 
 // takes 10-20us
@@ -115,7 +130,7 @@ void processUserInput() {
 		if (DmxUi.channelSelect) {
 			DmxUi.currentChannel = MAX(MIN(DmxUi.currentChannel + encoderDiff, DMX_NUM_CHANNELS - 1), 0);
 		} else { // value select
-			updateDmxChannelData(DmxUi.currentChannel, encoderDiff * 256 / 32); // speedup
+			updateDmxChannelData(DmxUi.currentChannel, encoderDiff);
 		}
 
 		DmxUi.lastEncoderValue = encoderValue;
@@ -161,8 +176,19 @@ int main() {
 	gpio_init(RotarySW);
 	gpio_pull_up(RotarySW);
 
-	pio_add_program(encoderPio, &quadrature_encoder_program);
+	pio_add_program(encoderPio, &quadrature_encoder_program); // TODO: add the dmx program after this if possible
 	quadrature_encoder_program_init(encoderPio, encoderSm, RotaryA, 10000);
+
+	const uint offset = pio_add_program(dmx512Pio, &dmx512_program);
+	dmx512_program_init(dmx512Pio, dmx512Sm, offset, 6); // TODO: temporary pin
+
+	dmx512DmaChannel = dma_claim_unused_channel(true);
+	dma_channel_config c = dma_channel_get_default_config(dmx512DmaChannel);
+	channel_config_set_transfer_data_size(&c, DMA_SIZE_8);
+	channel_config_set_dreq(&c, dmx512DmaDreq);
+
+	dma_channel_set_write_addr(dmx512DmaChannel, &dmx512Pio->txf[dmx512Sm], false);
+	dma_channel_set_config(dmx512DmaChannel, &c, false);
 
 	gpio_set_function(AudioPwm, GPIO_FUNC_PWM);
 	uint pwm_slice = pwm_gpio_to_slice_num(AudioPwm);
@@ -190,6 +216,8 @@ int main() {
 		displayUserInterface();
 
 		sendDmxFrameBlocking();
+
+		sendDmxFrameDma();
 
 		const uint64_t timeNow = time_us_64();
 		printf("main loop took %uus\n", (uint32_t)(timeNow - timeBefore));

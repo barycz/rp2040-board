@@ -20,6 +20,7 @@ add_executable(display-demo
 )
 
 pico_generate_pio_header(display-demo ${CMAKE_CURRENT_LIST_DIR}/src/quadrature_encoder.pio)
+pico_generate_pio_header(display-demo ${CMAKE_CURRENT_LIST_DIR}/src/dmx512.pio)
 
 pico_enable_stdio_usb(display-demo 1)
 pico_enable_stdio_uart(display-demo 0)
@@ -32,4 +33,5 @@ target_link_libraries(display-demo
 	hardware_pwm
 	hardware_pio
 	hardware_uart
+	hardware_dma
 )

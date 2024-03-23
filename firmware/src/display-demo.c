@@ -11,6 +11,7 @@
 #include "hardware/pwm.h"
 #include "hardware/pio.h"
 #include "hardware/uart.h"
+#include "hardware/timer.h"
 
 #include "quadrature_encoder.pio.h"
 
@@ -42,6 +43,10 @@ const uint DispSck = 29;
 // start code + channels
 uint8_t DmxBuffer[DMX_NUM_CHANNELS + 1];
 
+ssd1306_t disp;
+PIO encoderPio = pio0;
+const uint encoderSm = 0;
+
 struct {
 	bool channelSelect;
 	int32_t currentChannel;
@@ -67,7 +72,10 @@ void updateDmxChannelData(uint channel, int32_t diff) {
 	DmxBuffer[offset] += diff;
 }
 
-void sendDmxFrame() {
+// https://en.wikipedia.org/wiki/DMX512
+// takes 21.2ms for 512 slots/channels
+// do not send less that 24 slots as there is a minimum break to break delay of 1204us
+void sendDmxFrameBlocking() {
 	// switch to GPIO to transmit the break condition
 	gpio_init(DmxTx);
 	gpio_set_dir(DmxTx, GPIO_OUT);
@@ -85,6 +93,46 @@ void sendDmxFrame() {
 
 	// start code + channels
 	uart_write_blocking(DmxUart, DmxBuffer, sizeof(DmxBuffer));
+}
+
+// takes 10-20us
+void processUserInput() {
+	// there are 4 steps between each encoder notch
+	const int32_t encoderValue = quadrature_encoder_get_count(encoderPio, encoderSm) / 4;
+	const bool switchState = gpio_get(RotarySW);
+	if (switchState != DmxUi.lastSwitchState) {
+		// only switch modes when pressed, do nothing when released
+		if (switchState) {
+			DmxUi.channelSelect = !DmxUi.channelSelect;
+		}
+
+		DmxUi.lastSwitchState = switchState;
+	}
+
+	// we want CW rotation to be the positive direction, but the encoder value increases CCW
+	const int32_t encoderDiff = DmxUi.lastEncoderValue - encoderValue;
+	if (encoderDiff) {
+		if (DmxUi.channelSelect) {
+			DmxUi.currentChannel = MAX(MIN(DmxUi.currentChannel + encoderDiff, DMX_NUM_CHANNELS - 1), 0);
+		} else { // value select
+			updateDmxChannelData(DmxUi.currentChannel, encoderDiff * 256 / 32); // speedup
+		}
+
+		DmxUi.lastEncoderValue = encoderValue;
+	}
+}
+
+// takes 26.6ms
+void displayUserInterface() {
+	ssd1306_clear(&disp);
+
+	char buffer[64];
+	snprintf(buffer, sizeof(buffer), "%c Channel %d", DmxUi.channelSelect ? '>' : ' ', DmxUi.currentChannel);
+	ssd1306_draw_string(&disp, 0, 0, 1, buffer);
+
+	snprintf(buffer, sizeof(buffer), "%c Value %d", DmxUi.channelSelect ? ' ' : '>', getDmxChannelData(DmxUi.currentChannel));
+	ssd1306_draw_string(&disp, 0, 16, 1, buffer);
+	ssd1306_show(&disp);
 }
 
 int main() {
@@ -113,10 +161,8 @@ int main() {
 	gpio_init(RotarySW);
 	gpio_pull_up(RotarySW);
 
-	PIO pio = pio0;
-	const uint sm = 0;
-	pio_add_program(pio, &quadrature_encoder_program);
-	quadrature_encoder_program_init(pio, sm, RotaryA, 10000);
+	pio_add_program(encoderPio, &quadrature_encoder_program);
+	quadrature_encoder_program_init(encoderPio, encoderSm, RotaryA, 10000);
 
 	gpio_set_function(AudioPwm, GPIO_FUNC_PWM);
 	uint pwm_slice = pwm_gpio_to_slice_num(AudioPwm);
@@ -131,47 +177,22 @@ int main() {
 	gpio_pull_up(DispSda);
 	gpio_pull_up(DispSck);
 
-	ssd1306_t disp;
 	disp.external_vcc=false;
 	ssd1306_init(&disp, 128, 64, 0x3C, DISP_I2C);
 
 	while (true) {
 		gpio_put(LedYellow, 1);
 
-		ssd1306_clear(&disp);
-		// there are 4 steps between each encoder notch
-		const int32_t encoderValue = quadrature_encoder_get_count(pio, sm) / 4;
-		const bool switchState = gpio_get(RotarySW);
-		if (switchState != DmxUi.lastSwitchState) {
-			// only switch modes when pressed, do nothing when released
-			if (switchState) {
-				DmxUi.channelSelect = !DmxUi.channelSelect;
-			}
+		const uint64_t timeBefore = time_us_64();
 
-			DmxUi.lastSwitchState = switchState;
-		}
+		processUserInput();
 
-		// we want CW rotation to be the positive direction, but the encoder value increases CCW
-		const int32_t encoderDiff = DmxUi.lastEncoderValue - encoderValue;
-		if (encoderDiff) {
-			if (DmxUi.channelSelect) {
-				DmxUi.currentChannel = MAX(MIN(DmxUi.currentChannel + encoderDiff, DMX_NUM_CHANNELS - 1), 0);
-			} else { // value select
-				updateDmxChannelData(DmxUi.currentChannel, encoderDiff * 2); // speedup
-			}
+		displayUserInterface();
 
-			DmxUi.lastEncoderValue = encoderValue;
-		}
+		sendDmxFrameBlocking();
 
-		char buffer[64];
-		snprintf(buffer, sizeof(buffer), "%c Channel %d", DmxUi.channelSelect ? '>' : ' ', DmxUi.currentChannel);
-		ssd1306_draw_string(&disp, 0, 0, 1, buffer);
-
-		snprintf(buffer, sizeof(buffer), "%c Value %d", DmxUi.channelSelect ? ' ' : '>', getDmxChannelData(DmxUi.currentChannel));
-		ssd1306_draw_string(&disp, 0, 16, 1, buffer);
-		ssd1306_show(&disp);
-
-		sendDmxFrame();
+		const uint64_t timeNow = time_us_64();
+		printf("main loop took %uus\n", (uint32_t)(timeNow - timeBefore));
 
 		gpio_put(LedYellow, 0);
 		sleep_ms(20);

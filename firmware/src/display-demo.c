@@ -98,15 +98,15 @@ void sendDmxFrameBlocking() {
 	uart_write_blocking(DmxUart, DmxBuffer, sizeof(DmxBuffer));
 }
 
+// takes 16us if the previous frame is already finished
 void sendDmxFrameDma() {
 	dma_channel_wait_for_finish_blocking(dmx512DmaChannel);
 
 	static dmx512_output_buffer_t dmxBuffer;
-	static const uint8_t numSlotsToSend = 2; // TODO: set to low count for easier debugging
-	dmxBuffer.numSlotsMinusOne = numSlotsToSend - 1;
-	memcpy(dmxBuffer.slots, DmxBuffer, numSlotsToSend);
+	dmxBuffer.numSlotsMinusOne = DMX512_NUM_SUPPORTED_SLOTS - 1;
+	memcpy(dmxBuffer.slots, DmxBuffer, sizeof(dmxBuffer.slots));
 
-	dma_channel_set_trans_count(dmx512DmaChannel, numSlotsToSend + 1, false);
+	dma_channel_set_trans_count(dmx512DmaChannel, sizeof(dmxBuffer), false);
 	dma_channel_set_read_addr(dmx512DmaChannel, &dmxBuffer, true);
 }
 
@@ -180,7 +180,7 @@ int main() {
 	quadrature_encoder_program_init(encoderPio, encoderSm, RotaryA, 10000);
 
 	const uint offset = pio_add_program(dmx512Pio, &dmx512_program);
-	dmx512_program_init(dmx512Pio, dmx512Sm, offset, 6); // TODO: temporary pin
+	dmx512_program_init(dmx512Pio, dmx512Sm, offset, DmxTx);
 
 	dmx512DmaChannel = dma_claim_unused_channel(true);
 	dma_channel_config c = dma_channel_get_default_config(dmx512DmaChannel);
@@ -215,8 +215,7 @@ int main() {
 
 		displayUserInterface();
 
-		sendDmxFrameBlocking();
-
+		//sendDmxFrameBlocking();
 		sendDmxFrameDma();
 
 		const uint64_t timeNow = time_us_64();

@@ -1,4 +1,5 @@
 .program dmx512
+.side_set 1 opt
 
 .define public NumCyclesPerBit 2
 ; one bit is equal to 4us
@@ -6,33 +7,29 @@
 .define NumMarkAfterBreakBits 3
 
 .wrap_target
-	pull         ; wait for the frame data
+; DMX frame: break, mark after break (MAB), slot data
+	pull side 1  ; wait for the frame data and output the idle state
 	out y 8      ; first byte contains number of slots to send, 256 maximum
 
 ; DMX break: keep low for at least 92us
-	set x (NumBreakBits - 1)
+	set x (NumBreakBits - 1) side 0
 break_loop:
-	set pins 0
-	jmp x-- break_loop
+	jmp x-- break_loop [1]
 
 ; DMX mark after break: keep high for at least 12us
-; note that this instruction prolongs the break phase for one more cycle
-	set x (NumMarkAfterBreakBits - 1)
+	set x (NumMarkAfterBreakBits - 1) side 1
 mab_loop:
-	set pins 1
-	jmp x-- mab_loop
+	jmp x-- mab_loop [1]
 
 ; DMX slot: 1 start bit, 8 data bits, 2 stop bits
 slot_loop:
-	pull                                   ; stall before we do the start bit
-	set pins 0                             ; start bit
-	set x 7                                ; 2nd cycle of start bit
+	pull                ; stall before we do the start bit
+	set x 7 side 0 [1]  ; start bit
 bit_loop:
 	out pins 1
 	jmp x-- bit_loop
 
-	set pins 1 [NumCyclesPerBit * 2 - 1]   ; 2 stop bits
-	jmp y-- slot_loop
+	jmp y-- slot_loop side 1 [NumCyclesPerBit * 2 - 2] ; 2 stop bits
 
 .wrap
 
@@ -56,6 +53,7 @@ static inline void dmx512_program_init(PIO pio, uint sm, uint offset, uint pinTx
 	pio_sm_config c = dmx512_program_get_default_config(offset);
 	sm_config_set_out_pins(&c, pinTx, 1);
 	sm_config_set_set_pins(&c, pinTx, 1);
+	sm_config_set_sideset_pins(&c, pinTx);
 	sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_TX);
 
 	const uint64_t clock = clock_get_hz(clk_sys);

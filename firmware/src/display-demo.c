@@ -142,11 +142,21 @@ void displayUserInterface() {
 	ssd1306_clear(&disp);
 
 	char buffer[64];
+	uint32_t line = 0;
 	snprintf(buffer, sizeof(buffer), "%c Channel %d", DmxUi.channelSelect ? '>' : ' ', DmxUi.currentChannel);
-	ssd1306_draw_string(&disp, 0, 0, 1, buffer);
+	ssd1306_draw_string(&disp, 0, line, 1, buffer);
+	line += 16;
 
-	snprintf(buffer, sizeof(buffer), "%c Value %d", DmxUi.channelSelect ? ' ' : '>', getDmxChannelData(DmxUi.currentChannel));
-	ssd1306_draw_string(&disp, 0, 16, 1, buffer);
+	uint8_t channelValue = getDmxChannelData(DmxUi.currentChannel);
+	snprintf(buffer, sizeof(buffer), "%c Value %d", DmxUi.channelSelect ? ' ' : '>', channelValue);
+	ssd1306_draw_string(&disp, 0, line, 1, buffer);
+	line += 16;
+
+	const uint32_t barHeight = 6;
+	ssd1306_draw_empty_square(&disp, 0, line, disp.width-1, barHeight);
+	ssd1306_draw_square(&disp, 0, line, (disp.width-1) * channelValue / 255, barHeight);
+	line += barHeight + 2;
+
 	ssd1306_show(&disp);
 }
 

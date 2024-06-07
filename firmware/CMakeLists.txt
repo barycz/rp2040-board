@@ -35,3 +35,18 @@ target_link_libraries(display-demo
 	hardware_uart
 	hardware_dma
 )
+
+# midi joystick
+add_executable(midi-joystick
+	src/midi-joystick.c
+)
+
+pico_enable_stdio_usb(midi-joystick 1)
+pico_enable_stdio_uart(midi-joystick 0)
+
+pico_add_extra_outputs(midi-joystick)
+
+target_link_libraries(midi-joystick
+	pico_stdlib
+	hardware_adc
+)

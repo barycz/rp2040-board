@@ -38,15 +38,23 @@ target_link_libraries(display-demo
 
 # midi joystick
 add_executable(midi-joystick
-	src/midi-joystick.c
+	src/midi-joystick/midi-joystick.c
+	src/midi-joystick/usb_descriptors.c
 )
 
-pico_enable_stdio_usb(midi-joystick 1)
+target_include_directories(midi-joystick PUBLIC
+	src/midi-joystick
+)
+
+pico_enable_stdio_usb(midi-joystick 0)
 pico_enable_stdio_uart(midi-joystick 0)
 
 pico_add_extra_outputs(midi-joystick)
 
 target_link_libraries(midi-joystick
 	pico_stdlib
+	pico_unique_id
 	hardware_adc
+	tinyusb_device
+	tinyusb_board
 )

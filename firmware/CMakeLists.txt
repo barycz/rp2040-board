@@ -13,21 +13,21 @@ include_directories(
 	lib/pico-ssd1306
 )
 
-# display-demo app
-add_executable(display-demo
-	src/display-demo.c
+# dmx controller app
+add_executable(dmx-controller
+	src/dmx-controller/dmx-controller.c
 	lib/pico-ssd1306/ssd1306.c
 )
 
-pico_generate_pio_header(display-demo ${CMAKE_CURRENT_LIST_DIR}/src/quadrature_encoder.pio)
-pico_generate_pio_header(display-demo ${CMAKE_CURRENT_LIST_DIR}/src/dmx512.pio)
+pico_generate_pio_header(dmx-controller ${CMAKE_CURRENT_LIST_DIR}/src/dmx-controller/quadrature_encoder.pio)
+pico_generate_pio_header(dmx-controller ${CMAKE_CURRENT_LIST_DIR}/src/dmx-controller/dmx512.pio)
 
-pico_enable_stdio_usb(display-demo 1)
-pico_enable_stdio_uart(display-demo 0)
+pico_enable_stdio_usb(dmx-controller 1)
+pico_enable_stdio_uart(dmx-controller 0)
 
-pico_add_extra_outputs(display-demo)
+pico_add_extra_outputs(dmx-controller)
 
-target_link_libraries(display-demo
+target_link_libraries(dmx-controller
 	pico_stdlib
 	hardware_i2c
 	hardware_pwm

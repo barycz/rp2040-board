@@ -48,8 +48,10 @@ void midi_task(uint adc_a, uint adc_b) {
 }
 
 int main(void) {
-	stdio_init_all();
 	board_init();
+	// initialize tiny usb before stdio as we use the usb backend
+	tud_init(BOARD_TUD_RHPORT);
+	stdio_init_all();
 
 	adc_init();
 	adc_gpio_init(JoystickPins[0]);
@@ -70,8 +72,6 @@ int main(void) {
 	gpio_init(RotarySW);
 	gpio_pull_up(RotarySW);
 
-	tud_init(BOARD_TUD_RHPORT);
-
 	while (true) {
 		gpio_put(LedYellow, 1);
 		tud_task();
@@ -81,7 +81,7 @@ int main(void) {
 		adc_select_input(JoystickInputs[1]);
 		uint adc_y_raw = adc_read();
 
-		//printf("\r %04u %04u", adc_x_raw, adc_y_raw);
+		printf("\r %04u %04u", adc_x_raw, adc_y_raw);
 		midi_task(adc_x_raw, adc_y_raw);
 
 		gpio_put(LedYellow, 0);

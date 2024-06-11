@@ -46,7 +46,7 @@ target_include_directories(midi-joystick PUBLIC
 	src/midi-joystick
 )
 
-pico_enable_stdio_usb(midi-joystick 0)
+pico_enable_stdio_usb(midi-joystick 1)
 pico_enable_stdio_uart(midi-joystick 0)
 
 pico_add_extra_outputs(midi-joystick)

@@ -27,7 +27,27 @@ const uint JoystickInputs[] = {2, 3};
 const uint MidiCable = 0;
 const uint MidiChannel = 0;
 
-void midi_task(uint adc_a, uint adc_b) {
+typedef struct axis_calibration {
+	uint min;
+	uint max;
+} axis_calibration_t;
+
+// hardcored values for now
+axis_calibration_t adc_a_calibration = { 492, 3397 };
+axis_calibration_t adc_b_calibration = { 561, 3292 };
+
+uint axis_remap_adc(axis_calibration_t* calibration, uint raw_adc) {
+	if (raw_adc < calibration->min) {
+		raw_adc = calibration->min;
+	} else if (raw_adc > calibration->max) {
+		raw_adc = calibration->max;
+	}
+	const uint input_range = calibration->max - calibration->min;
+	const uint output_range = 127; // 7bits of midi cc data
+	return (raw_adc - calibration->min) * output_range / input_range;
+}
+
+void midi_task(uint cc_a, uint cc_b) {
 	static uint32_t start_ms = 0;
 
 	// discard incoming trafic
@@ -40,10 +60,10 @@ void midi_task(uint adc_a, uint adc_b) {
 	// https://anotherproducer.com/online-tools-for-musicians/midi-cc-list/
 
 	// mod wheel
-	uint8_t midi_cca[3] = { 0xb0 | MidiChannel, 1, 0x7f & (adc_a * 128 / 4096) };
+	uint8_t midi_cca[3] = { 0xb0 | MidiChannel, 1, 0x7f & cc_a };
 	tud_midi_stream_write(MidiCable, midi_cca, 3);
 	// foot pedal
-	uint8_t midi_ccb[3] = { 0xb0 | MidiChannel, 4, 0x7f & (adc_b * 128 / 4096) };
+	uint8_t midi_ccb[3] = { 0xb0 | MidiChannel, 4, 0x7f & cc_b };
 	tud_midi_stream_write(MidiCable, midi_ccb, 3);
 }
 
@@ -81,8 +101,13 @@ int main(void) {
 		adc_select_input(JoystickInputs[1]);
 		uint adc_y_raw = adc_read();
 
-		printf("\r %04u %04u", adc_x_raw, adc_y_raw);
-		midi_task(adc_x_raw, adc_y_raw);
+		// dead zone 1960 1973 1892 1906
+		// min-max   0492 3397 0561 3292
+
+		//printf("\r %04u %04u", adc_x_raw, adc_y_raw);
+		const uint cc_a = axis_remap_adc(&adc_a_calibration, adc_x_raw);
+		const uint cc_b = axis_remap_adc(&adc_b_calibration, adc_y_raw);
+		midi_task(cc_a, cc_b);
 
 		gpio_put(LedYellow, 0);
 		sleep_ms(10);

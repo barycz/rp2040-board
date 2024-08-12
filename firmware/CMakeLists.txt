@@ -58,3 +58,30 @@ target_link_libraries(midi-joystick
 	tinyusb_device
 	tinyusb_board
 )
+
+# crsf to midi
+add_executable(crsf-to-midi
+	src/crsf-to-midi/crsf-to-midi.cpp
+	src/midi-joystick/usb_descriptors.c
+	src/crsf-to-midi/CRServoF/CrsfSerial/CrsfSerial.cpp
+	src/crsf-to-midi/CRServoF/crc8/crc8.cpp
+)
+
+target_include_directories(crsf-to-midi PUBLIC
+	src/crsf-to-midi
+	src/crsf-to-midi/CRServoF/crc8
+	src/crsf-to-midi/CRServoF/CrsfSerial
+	src/midi-joystick
+)
+
+pico_enable_stdio_usb(crsf-to-midi 1)
+pico_enable_stdio_uart(crsf-to-midi 0)
+
+pico_add_extra_outputs(crsf-to-midi)
+
+target_link_libraries(crsf-to-midi
+	pico_stdlib
+	pico_unique_id
+	tinyusb_device
+	tinyusb_board
+)

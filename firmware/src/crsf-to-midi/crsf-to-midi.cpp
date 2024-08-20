@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <memory>
 
 #include "CrsfSerial.h"
 
@@ -30,13 +31,20 @@ const uint JoystickInputs[] = {2, 3};
 
 const uint MidiCable = 0;
 const uint MidiChannel = 0;
+const uint MidiDataMask = 0x7f; // 7bits
 
 static CrsfSerial crsf(uart1);
 static bool crsfNewPacket = false;
 
-void midi_task(uint cc_a, uint cc_b) {
-	static uint32_t start_ms = 0;
+struct MidiControllerData {
+	uint8_t Controller;
+	uint8_t Data;
+};
 
+static const uint ControllerDataMaxCount = 2;
+using ControllerDataArray = std::array<MidiControllerData, ControllerDataMaxCount>;
+
+void midi_task(const ControllerDataArray& dataArray) {
 	// discard incoming trafic
 	uint8_t packet[4];
 	while (tud_midi_available()) {
@@ -46,18 +54,20 @@ void midi_task(uint cc_a, uint cc_b) {
 	// https://www.songstuff.com/recording/article/midi-message-format/
 	// https://anotherproducer.com/online-tools-for-musicians/midi-cc-list/
 
-	// mod wheel
-	uint8_t midi_cca[3] = { 0xb0 | MidiChannel, 1, static_cast<uint8_t>(0x7f & cc_a) };
-	tud_midi_stream_write(MidiCable, midi_cca, 3);
-	// foot pedal
-	uint8_t midi_ccb[3] = { 0xb0 | MidiChannel, 4, static_cast<uint8_t>(0x7f & cc_b) };
-	tud_midi_stream_write(MidiCable, midi_ccb, 3);
+	for (const auto& controllerData: dataArray) {
+		uint8_t midiCC[3] = {
+			0xb0 | MidiChannel,
+			controllerData.Controller,
+			static_cast<uint8_t>(MidiDataMask & controllerData.Data)
+		};
+		tud_midi_stream_write(MidiCable, midiCC, 3);
+	}
 }
 
 static uint8_t mapCrsfChannelToMidi(int channelData) {
 	static const int crsfMin = 989;
 	static const int crsfMax = 2011;
-	static const int midiMax = 0x7f;
+	static const int midiMax = MidiDataMask;
 	if (channelData < crsfMin) {
 		return 0;
 	}
@@ -83,7 +93,32 @@ static void onCrsfOobData(uint8_t b) {
 	//printf("CRSF oob data %x", static_cast<uint>(b));
 }
 
-int main(void) {
+void crsf_to_midi_update() {
+	if (crsfNewPacket == false) {
+		return;
+	}
+
+	int sticksEATR[4] = {
+		mapCrsfChannelToMidi(crsf.getChannel(1)),
+		mapCrsfChannelToMidi(crsf.getChannel(2)),
+		mapCrsfChannelToMidi(crsf.getChannel(3)),
+		mapCrsfChannelToMidi(crsf.getChannel(4)),
+	};
+
+	//printf("CRSF packet channels: %d %d %d %d\n",
+	//	sticksEATR[0], sticksEATR[1], sticksEATR[2], sticksEATR[3]);
+
+	ControllerDataArray dataArray;
+	dataArray[0].Controller = 1; // mod wheel
+	dataArray[0].Data = sticksEATR[2];
+	dataArray[1].Controller = 4; // foot pedal
+	dataArray[1].Data = sticksEATR[3];
+	midi_task(dataArray);
+
+	crsfNewPacket = false;
+}
+
+void init() {
 	board_init();
 	// initialize tiny usb before stdio as we use the usb backend
 	tud_init(BOARD_TUD_RHPORT);
@@ -112,28 +147,23 @@ int main(void) {
 	crsf.onLinkDown = &onCrsfLinkDown;
 	crsf.onOobData = &onCrsfOobData;
 	crsf.begin();
+}
 
-	while (true) {
-		gpio_put(LedYellow, 1);
-		crsf.loop();
-		tud_task();
+void update() {
+	gpio_put(LedYellow, 1);
 
-		if (crsfNewPacket) {
-			int sticksEATR[4] = {
-				mapCrsfChannelToMidi(crsf.getChannel(1)),
-				mapCrsfChannelToMidi(crsf.getChannel(2)),
-				mapCrsfChannelToMidi(crsf.getChannel(3)),
-				mapCrsfChannelToMidi(crsf.getChannel(4)),
-			};
+	crsf.loop();
+	tud_task();
+	crsf_to_midi_update();
 
-			//printf("CRSF packet channels: %d %d %d %d\n",
-			//	sticksEATR[0], sticksEATR[1], sticksEATR[2], sticksEATR[3]);
+	gpio_put(LedYellow, 0);
+	sleep_ms(10);
+}
 
-			midi_task(sticksEATR[2], sticksEATR[3]);
-			crsfNewPacket = false;
-		}
+int main() {
+	init();
 
-		gpio_put(LedYellow, 0);
-		sleep_ms(10);
+	while(true) {
+		update();
 	}
 }

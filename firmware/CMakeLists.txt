@@ -58,3 +58,25 @@ target_link_libraries(midi-joystick
 	tinyusb_device
 	tinyusb_board
 )
+
+# swing propeller
+add_executable(swing-propeller
+	src/swing-propeller/swing-propeller.c
+	src/swing-propeller/usb_descriptors.c
+)
+
+target_include_directories(swing-propeller PUBLIC
+	src/swing-propeller
+)
+
+pico_enable_stdio_usb(swing-propeller 1)
+pico_enable_stdio_uart(swing-propeller 0)
+
+pico_add_extra_outputs(swing-propeller)
+
+target_link_libraries(swing-propeller
+	pico_stdlib
+	pico_unique_id
+	tinyusb_device
+	tinyusb_board
+)

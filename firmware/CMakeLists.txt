@@ -77,9 +77,12 @@ pico_add_extra_outputs(swing-propeller)
 target_link_libraries(swing-propeller
 	pico_stdlib
 	pico_unique_id
+	hardware_i2c
+	hardware_pwm
 	tinyusb_device
 	tinyusb_board
 )
+
 # crsf to midi
 add_executable(crsf-to-midi
 	src/crsf-to-midi/crsf-to-midi.cpp

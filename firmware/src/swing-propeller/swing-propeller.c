@@ -18,20 +18,68 @@ const uint LedRed = 27;
 const uint DataDebugUart = 1; // 0 is reserved for the pico stdio
 const uint8_t mpu6050_addr = 0x68;
 
+const uint8_t SwingAxis = 1;
+const int32_t SwingPhaseHysteresis = 200;
+
+const int32_t SwingFilterKf = 20;
+const int32_t SwingFilterKr = 1;
+const int32_t SwingFilterKn = SwingFilterKf + SwingFilterKr;
+
+enum Phase {
+	PHASE_UNKNOWN,
+	PHASE_RISING,
+	PHASE_FALLING,
+};
+
 uint64_t lastEcho;
 uint64_t lastData;
+
 int16_t accelDataRaw[3];
 int16_t gyroDataRaw[3];
 
 int32_t accelDataFiltered[3];
 int32_t gyroDataFiltered[3];
 
+enum Phase swingPhase = PHASE_UNKNOWN;
+int32_t swingAxisValue;
+uint64_t swingLastPeakUs;
+uint64_t swingPeriodUs;
+
 void filterData(const int16_t rawData[3], int32_t filteredData[3]) {
-	const int32_t kf = 9;
-	const int32_t kr = 1;
-	const int32_t kn = kf + kr;
+	const int32_t kf = SwingFilterKf;
+	const int32_t kr = SwingFilterKr;
+	const int32_t kn = SwingFilterKn;
 	for (int i = 0; i < 3; i++) {
 		filteredData[i] = (kf * filteredData[i] + kr * rawData[i]) / kn;
+	}
+}
+
+void promoteSwingPhase(const enum Phase newPhase) {
+	if (newPhase == swingPhase) {
+		return;
+	}
+
+	swingPhase = newPhase;
+	if (newPhase == PHASE_FALLING) {
+		const uint64_t now = time_us_64();
+		swingPeriodUs = now - swingLastPeakUs;
+		swingLastPeakUs = now;
+	}
+}
+
+void swing_task() {
+	const int32_t newAxisValue = accelDataFiltered[SwingAxis];
+	const int32_t oldAxisValue = swingAxisValue;
+	if (newAxisValue > oldAxisValue + SwingPhaseHysteresis) {
+		if (newAxisValue < SwingPhaseHysteresis) {
+			promoteSwingPhase(PHASE_RISING);
+		}
+		swingAxisValue = newAxisValue;
+	} else if (newAxisValue < oldAxisValue - SwingPhaseHysteresis) {
+		if (newAxisValue > SwingPhaseHysteresis) {
+			promoteSwingPhase(PHASE_FALLING);
+		}
+		swingAxisValue = newAxisValue;
 	}
 }
 
@@ -74,9 +122,10 @@ void mpu6050_task() {
 	filterData(gyroDataRaw, gyroDataFiltered);
 
 	char buffer[255];
-	sprintf(buffer, "%d,%d,%d,%d,%d,%d\r",
+	sprintf(buffer, "%d,%d,%d,%d,%d,%d,%d,%d,%d\r\n",
 		accelDataFiltered[0], accelDataFiltered[1], accelDataFiltered[2],
-		gyroDataFiltered[0], gyroDataFiltered[1], gyroDataFiltered[2]
+		gyroDataFiltered[0], gyroDataFiltered[1], gyroDataFiltered[2],
+		swingAxisValue, swingPhase * 10000 - 15000, 0
 	);
 	tud_cdc_n_write_str(DataDebugUart, buffer);
 }
@@ -85,12 +134,13 @@ void placeholder_task() {
 	const uint64_t now = time_us_64();
 
 	if (lastEcho + 1000000 < now) {
-		printf("uart spam\r\n");
+		printf("Swing period = %d ms\r\n", (int32_t)(swingPeriodUs / 1000));
 		lastEcho = now;
 	}
 
 	if (lastData + 10000 < now) {
 		mpu6050_task();
+		swing_task();
 		lastData = now;
 	}
 }

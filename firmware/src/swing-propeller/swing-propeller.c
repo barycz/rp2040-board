@@ -21,8 +21,9 @@ const uint DataDebugUart = 1; // 0 is reserved for the pico stdio
 const uint8_t mpu6050_addr = 0x68;
 
 const uint EscPwmPeriodUs = 20000;
-const uint EscPwmDutyMinUs = 1100;
-const uint EscPwmDutyMaxUs = 1300;
+const uint EscPwmDutyOffUs = 1100;
+const uint EscPwmDutyMinUs = 1200;
+const uint EscPwmDutyMaxUs = 1400;
 const uint EscPwmClkDivider = SYS_CLK_KHZ / 1000;
 
 const uint8_t SwingAxis = 1;
@@ -32,14 +33,14 @@ const int32_t SwingFilterKf = 20;
 const int32_t SwingFilterKr = 1;
 const int32_t SwingFilterKn = SwingFilterKf + SwingFilterKr;
 
-enum Phase {
-	PHASE_UNKNOWN,
+enum SwingPhase {
+	PHASE_IDLE,
 	PHASE_RISING,
 	PHASE_FALLING,
 };
 
 uint EscPwmSlice;
-uint EscPwmDutyUs;
+volatile uint EscPwmDutyUs;
 
 uint64_t lastEcho;
 uint64_t lastData;
@@ -50,10 +51,35 @@ int16_t gyroDataRaw[3];
 int32_t accelDataFiltered[3];
 int32_t gyroDataFiltered[3];
 
-enum Phase swingPhase = PHASE_UNKNOWN;
+enum SwingPhase swingPhase = PHASE_IDLE;
 int32_t swingAxisValue;
 uint64_t swingLastPeakUs;
 uint64_t swingPeriodUs;
+
+enum PropellerPhase {
+	PROP_IDLE,
+	PROP_RISING,
+	PROP_FUll_POWER,
+	PROP_FALLING,
+};
+
+volatile enum PropellerPhase propellerPhase = PHASE_IDLE;
+volatile uint propellerFullPowerSteps;
+
+void spinUpPropeller() {
+	propellerPhase = PROP_RISING;
+	if (EscPwmDutyUs < EscPwmDutyMinUs) {
+		EscPwmDutyUs = EscPwmDutyMinUs;
+	}
+}
+
+bool swingPeriodIsAcceptable() {
+	static const uint64_t SwingPeriodAcceptableMinUs = 1000000;
+	static const uint64_t SwingPeriodAcceptableMaxUs = 8000000;
+	assert(SwingPeriodAcceptableMinUs > EscPwmPeriodUs);
+	return swingPeriodUs >= SwingPeriodAcceptableMinUs
+		&& swingPeriodUs <= SwingPeriodAcceptableMaxUs;
+}
 
 void filterData(const int16_t rawData[3], int32_t filteredData[3]) {
 	const int32_t kf = SwingFilterKf;
@@ -64,7 +90,7 @@ void filterData(const int16_t rawData[3], int32_t filteredData[3]) {
 	}
 }
 
-void promoteSwingPhase(const enum Phase newPhase) {
+void promoteSwingPhase(const enum SwingPhase newPhase) {
 	if (newPhase == swingPhase) {
 		return;
 	}
@@ -74,6 +100,9 @@ void promoteSwingPhase(const enum Phase newPhase) {
 		const uint64_t now = time_us_64();
 		swingPeriodUs = now - swingLastPeakUs;
 		swingLastPeakUs = now;
+		if (swingPeriodIsAcceptable()) {
+			spinUpPropeller();
+		}
 	}
 }
 
@@ -144,9 +173,35 @@ void on_pwm_wrap() {
 	// Clear the interrupt flag that brought us here
 	pwm_clear_irq(pwm_gpio_to_slice_num(PICO_DEFAULT_LED_PIN));
 
-	EscPwmDutyUs += 1;
-	if (EscPwmDutyUs > EscPwmDutyMaxUs) {
-		EscPwmDutyUs = EscPwmDutyMinUs;
+	if (swingPeriodIsAcceptable() == false) {
+		return;
+	}
+
+	const uint numStepsTotal = swingPeriodUs / EscPwmPeriodUs / 2;
+	const uint transitionSteps = numStepsTotal / 4;
+	const uint fullPowerSteps = numStepsTotal / 2;
+	const uint dutyDiff = (EscPwmDutyMaxUs - EscPwmDutyMinUs) / transitionSteps;
+
+	if (propellerPhase == PROP_RISING) {
+		EscPwmDutyUs += dutyDiff;
+		propellerFullPowerSteps = 0;
+		if (EscPwmDutyUs > EscPwmDutyMaxUs) {
+			EscPwmDutyUs = EscPwmDutyMaxUs;
+			propellerPhase = PROP_FUll_POWER;
+		}
+	} else if (propellerPhase == PROP_FALLING) {
+		EscPwmDutyUs -= dutyDiff;
+		propellerFullPowerSteps = 0;
+		if (EscPwmDutyUs < EscPwmDutyMinUs) {
+			EscPwmDutyUs = EscPwmDutyMinUs;
+			propellerPhase = PROP_IDLE;
+		}
+	} else if (propellerPhase == PROP_FUll_POWER) {
+		EscPwmDutyUs = EscPwmDutyMaxUs;
+		propellerFullPowerSteps += 1;
+		if (propellerFullPowerSteps > fullPowerSteps) {
+			propellerPhase = PROP_FALLING;
+		}
 	}
 
 	pwm_set_chan_level(EscPwmSlice, 0, EscPwmDutyUs);
@@ -181,7 +236,7 @@ int main(void) {
 
 	gpio_set_function(EscPwmPin, GPIO_FUNC_PWM);
 	EscPwmSlice = pwm_gpio_to_slice_num(EscPwmPin);
-	EscPwmDutyUs = EscPwmDutyMinUs;
+	EscPwmDutyUs = EscPwmDutyOffUs;
 
 	pwm_clear_irq(EscPwmSlice);
 	pwm_set_irq_enabled(EscPwmSlice, true);

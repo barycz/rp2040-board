@@ -9,14 +9,21 @@
 #include "hardware/timer.h"
 #include "hardware/i2c.h"
 #include "hardware/pwm.h"
+#include "hardware/irq.h"
 
 #include "bsp/board.h"
 #include "tusb.h"
 
 const uint LedYellow = 26;
 const uint LedRed = 27;
+const uint EscPwmPin = 8;
 const uint DataDebugUart = 1; // 0 is reserved for the pico stdio
 const uint8_t mpu6050_addr = 0x68;
+
+const uint EscPwmPeriodUs = 20000;
+const uint EscPwmDutyMinUs = 1100;
+const uint EscPwmDutyMaxUs = 1300;
+const uint EscPwmClkDivider = SYS_CLK_KHZ / 1000;
 
 const uint8_t SwingAxis = 1;
 const int32_t SwingPhaseHysteresis = 200;
@@ -30,6 +37,9 @@ enum Phase {
 	PHASE_RISING,
 	PHASE_FALLING,
 };
+
+uint EscPwmSlice;
+uint EscPwmDutyUs;
 
 uint64_t lastEcho;
 uint64_t lastData;
@@ -130,6 +140,18 @@ void mpu6050_task() {
 	tud_cdc_n_write_str(DataDebugUart, buffer);
 }
 
+void on_pwm_wrap() {
+	// Clear the interrupt flag that brought us here
+	pwm_clear_irq(pwm_gpio_to_slice_num(PICO_DEFAULT_LED_PIN));
+
+	EscPwmDutyUs += 1;
+	if (EscPwmDutyUs > EscPwmDutyMaxUs) {
+		EscPwmDutyUs = EscPwmDutyMinUs;
+	}
+
+	pwm_set_chan_level(EscPwmSlice, 0, EscPwmDutyUs);
+}
+
 void placeholder_task() {
 	const uint64_t now = time_us_64();
 
@@ -156,6 +178,20 @@ int main(void) {
 
 	gpio_init(LedRed);
 	gpio_set_dir(LedRed, GPIO_OUT);
+
+	gpio_set_function(EscPwmPin, GPIO_FUNC_PWM);
+	EscPwmSlice = pwm_gpio_to_slice_num(EscPwmPin);
+	EscPwmDutyUs = EscPwmDutyMinUs;
+
+	pwm_clear_irq(EscPwmSlice);
+	pwm_set_irq_enabled(EscPwmSlice, true);
+	irq_set_exclusive_handler(PWM_IRQ_WRAP, on_pwm_wrap);
+	irq_set_enabled(PWM_IRQ_WRAP, true);
+
+	pwm_set_clkdiv_int_frac(EscPwmSlice, EscPwmClkDivider, 0);
+	pwm_set_wrap(EscPwmSlice, EscPwmPeriodUs);
+	pwm_set_chan_level(EscPwmSlice, 0, EscPwmDutyUs);
+	pwm_set_enabled(EscPwmSlice, true);
 
 	// This example will use I2C0 on the default SDA and SCL pins (4, 5 on a Pico)
 	i2c_init(i2c_default, 400 * 1000);

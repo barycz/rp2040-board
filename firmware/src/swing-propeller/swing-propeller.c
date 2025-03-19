@@ -20,14 +20,18 @@ const uint EscPwmPin = 8;
 const uint DataDebugUart = 1; // 0 is reserved for the pico stdio
 const uint8_t mpu6050_addr = 0x68;
 
+const uint GyroCalibrationTargetSamples = 200;
+
 const uint EscPwmPeriodUs = 20000;
 const uint EscPwmDutyOffUs = 1100;
 const uint EscPwmDutyMinUs = 1200;
 const uint EscPwmDutyMaxUs = 1400;
 const uint EscPwmClkDivider = SYS_CLK_KHZ / 1000;
 
-const uint8_t SwingAxis = 1;
+const uint8_t SwingAxis = 0;
 const int32_t SwingPhaseHysteresis = 200;
+const int32_t SwingPhaseMinAmplitude = 500;
+const uint SwingPropellerImpulseLengthUs = 1000000;
 
 const int32_t SwingFilterKf = 20;
 const int32_t SwingFilterKr = 1;
@@ -47,6 +51,8 @@ uint64_t lastData;
 
 int16_t accelDataRaw[3];
 int16_t gyroDataRaw[3];
+uint gyroNumTakenCalibSamples;
+int32_t gyroCalibration[3];
 
 int32_t accelDataFiltered[3];
 int32_t gyroDataFiltered[3];
@@ -81,6 +87,10 @@ bool swingPeriodIsAcceptable() {
 		&& swingPeriodUs <= SwingPeriodAcceptableMaxUs;
 }
 
+bool isGyroCalibrated() {
+	return gyroNumTakenCalibSamples >= GyroCalibrationTargetSamples;
+}
+
 void filterData(const int16_t rawData[3], int32_t filteredData[3]) {
 	const int32_t kf = SwingFilterKf;
 	const int32_t kr = SwingFilterKr;
@@ -100,22 +110,38 @@ void promoteSwingPhase(const enum SwingPhase newPhase) {
 		const uint64_t now = time_us_64();
 		swingPeriodUs = now - swingLastPeakUs;
 		swingLastPeakUs = now;
+		printf("falling now %s acceptable period\n",
+			swingPeriodIsAcceptable() ? "with" : "without");
 		if (swingPeriodIsAcceptable()) {
 			spinUpPropeller();
 		}
 	}
 }
 
+void swing_calibration_task() {
+	assert(isGyroCalibrated() == false);
+	for (int i = 0; i < 3; i++) {
+		gyroCalibration[i] += gyroDataRaw[i];
+	}
+	
+	gyroNumTakenCalibSamples += 1;
+	if (isGyroCalibrated()) {
+		for (int i = 0; i < 3; i++) {
+			gyroCalibration[i] /= gyroNumTakenCalibSamples;
+		}
+	}
+}
+
 void swing_task() {
-	const int32_t newAxisValue = accelDataFiltered[SwingAxis];
+	const int32_t newAxisValue = gyroDataFiltered[SwingAxis] - gyroCalibration[SwingAxis];
 	const int32_t oldAxisValue = swingAxisValue;
 	if (newAxisValue > oldAxisValue + SwingPhaseHysteresis) {
-		if (newAxisValue < SwingPhaseHysteresis) {
+		if (newAxisValue < -SwingPhaseMinAmplitude) {
 			promoteSwingPhase(PHASE_RISING);
 		}
 		swingAxisValue = newAxisValue;
 	} else if (newAxisValue < oldAxisValue - SwingPhaseHysteresis) {
-		if (newAxisValue > SwingPhaseHysteresis) {
+		if (newAxisValue > SwingPhaseMinAmplitude) {
 			promoteSwingPhase(PHASE_FALLING);
 		}
 		swingAxisValue = newAxisValue;
@@ -161,12 +187,14 @@ void mpu6050_task() {
 	filterData(gyroDataRaw, gyroDataFiltered);
 
 	char buffer[255];
-	sprintf(buffer, "%d,%d,%d,%d,%d,%d,%d,%d,%d\r\n",
+	sprintf(buffer, "%d,%d,%d,%d,%d,%d\r",
 		accelDataFiltered[0], accelDataFiltered[1], accelDataFiltered[2],
-		gyroDataFiltered[0], gyroDataFiltered[1], gyroDataFiltered[2],
-		swingAxisValue, swingPhase * 10000 - 15000, 0
+		gyroDataFiltered[0] - gyroCalibration[0],
+		gyroDataFiltered[1] - gyroCalibration[1],
+		gyroDataFiltered[2] - gyroCalibration[2]
 	);
 	tud_cdc_n_write_str(DataDebugUart, buffer);
+	tud_cdc_n_write_flush(DataDebugUart);
 }
 
 void on_pwm_wrap() {
@@ -177,7 +205,7 @@ void on_pwm_wrap() {
 		return;
 	}
 
-	const uint numStepsTotal = swingPeriodUs / EscPwmPeriodUs / 2;
+	const uint numStepsTotal = SwingPropellerImpulseLengthUs / EscPwmPeriodUs;
 	const uint transitionSteps = numStepsTotal / 4;
 	const uint fullPowerSteps = numStepsTotal / 2;
 	const uint dutyDiff = (EscPwmDutyMaxUs - EscPwmDutyMinUs) / transitionSteps;
@@ -217,7 +245,11 @@ void placeholder_task() {
 
 	if (lastData + 10000 < now) {
 		mpu6050_task();
-		swing_task();
+		if (isGyroCalibrated()) {
+			swing_task();
+		} else {
+			swing_calibration_task();
+		}
 		lastData = now;
 	}
 }

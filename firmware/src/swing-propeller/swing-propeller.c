@@ -10,6 +10,7 @@
 #include "hardware/i2c.h"
 #include "hardware/pwm.h"
 #include "hardware/irq.h"
+#include "hardware/dma.h"
 
 #include "bsp/board.h"
 #include "tusb.h"
@@ -44,7 +45,10 @@ enum SwingPhase {
 };
 
 uint EscPwmSlice;
-volatile uint EscPwmDutyUs;
+uint EscPwmChannel;
+int EscPwmDmaChannel;
+
+uint16_t PwmData[50];
 
 uint64_t lastEcho;
 uint64_t lastData;
@@ -62,27 +66,19 @@ int32_t swingAxisValue;
 uint64_t swingLastPeakUs;
 uint64_t swingPeriodUs;
 
-enum PropellerPhase {
-	PROP_IDLE,
-	PROP_RISING,
-	PROP_FUll_POWER,
-	PROP_FALLING,
-};
-
-volatile enum PropellerPhase propellerPhase = PHASE_IDLE;
-volatile uint propellerFullPowerSteps;
-
 void spinUpPropeller() {
-	propellerPhase = PROP_RISING;
-	if (EscPwmDutyUs < EscPwmDutyMinUs) {
-		EscPwmDutyUs = EscPwmDutyMinUs;
+	// the previous dma transfer should be already finished
+	if (!dma_channel_is_busy(EscPwmDmaChannel)) {
+		// reset the dma read address, transfer count and retrigger it
+		dma_channel_set_read_addr(EscPwmDmaChannel, PwmData, false);
+		dma_channel_set_trans_count(EscPwmDmaChannel, count_of(PwmData), true);
 	}
 }
 
 bool swingPeriodIsAcceptable() {
-	static const uint64_t SwingPeriodAcceptableMinUs = 1000000;
-	static const uint64_t SwingPeriodAcceptableMaxUs = 8000000;
-	assert(SwingPeriodAcceptableMinUs > EscPwmPeriodUs);
+	static const uint64_t SwingPeriodAcceptableMinUs = 2000000; // roughly 1m pendulum
+	static const uint64_t SwingPeriodAcceptableMaxUs = 4500000; // roughly 5m pendulum
+	assert(SwingPeriodAcceptableMinUs >= 2 * count_of(PwmData) * EscPwmPeriodUs);
 	return swingPeriodUs >= SwingPeriodAcceptableMinUs
 		&& swingPeriodUs <= SwingPeriodAcceptableMaxUs;
 }
@@ -197,50 +193,18 @@ void mpu6050_task() {
 	tud_cdc_n_write_flush(DataDebugUart);
 }
 
-void on_pwm_wrap() {
-	// Clear the interrupt flag that brought us here
-	pwm_clear_irq(pwm_gpio_to_slice_num(PICO_DEFAULT_LED_PIN));
-
-	if (swingPeriodIsAcceptable() == false) {
-		return;
-	}
-
-	const uint numStepsTotal = SwingPropellerImpulseLengthUs / EscPwmPeriodUs;
-	const uint transitionSteps = numStepsTotal / 4;
-	const uint fullPowerSteps = numStepsTotal / 2;
-	const uint dutyDiff = (EscPwmDutyMaxUs - EscPwmDutyMinUs) / transitionSteps;
-
-	if (propellerPhase == PROP_RISING) {
-		EscPwmDutyUs += dutyDiff;
-		propellerFullPowerSteps = 0;
-		if (EscPwmDutyUs > EscPwmDutyMaxUs) {
-			EscPwmDutyUs = EscPwmDutyMaxUs;
-			propellerPhase = PROP_FUll_POWER;
-		}
-	} else if (propellerPhase == PROP_FALLING) {
-		EscPwmDutyUs -= dutyDiff;
-		propellerFullPowerSteps = 0;
-		if (EscPwmDutyUs < EscPwmDutyMinUs) {
-			EscPwmDutyUs = EscPwmDutyMinUs;
-			propellerPhase = PROP_IDLE;
-		}
-	} else if (propellerPhase == PROP_FUll_POWER) {
-		EscPwmDutyUs = EscPwmDutyMaxUs;
-		propellerFullPowerSteps += 1;
-		if (propellerFullPowerSteps > fullPowerSteps) {
-			propellerPhase = PROP_FALLING;
-		}
-	}
-
-	pwm_set_chan_level(EscPwmSlice, 0, EscPwmDutyUs);
-}
-
 void placeholder_task() {
 	const uint64_t now = time_us_64();
 
-	if (lastEcho + 1000000 < now) {
+	if (lastEcho + 2000000 < now) {
 		printf("Swing period = %d ms\r\n", (int32_t)(swingPeriodUs / 1000));
 		lastEcho = now;
+
+#if 0
+		for (size_t i = 0; i < count_of(PwmData); ++i) {
+			printf("%u\n", (uint)PwmData[i]);
+		}
+#endif
 	}
 
 	if (lastData + 10000 < now) {
@@ -251,6 +215,16 @@ void placeholder_task() {
 			swing_calibration_task();
 		}
 		lastData = now;
+	}
+}
+
+void pwm_gen_interval(size_t beginIdx, size_t endIdx, int rampBegin, int rampEnd) {
+	assert(endIdx <= count_of(PwmData));
+	assert(beginIdx + 1 < endIdx);
+	const int diff = rampEnd - rampBegin;
+	const int interval = endIdx - beginIdx;
+	for (int i = 0; i < interval; ++i) {
+		PwmData[beginIdx + i] = rampBegin + diff * i / (interval - 1);
 	}
 }
 
@@ -268,17 +242,36 @@ int main(void) {
 
 	gpio_set_function(EscPwmPin, GPIO_FUNC_PWM);
 	EscPwmSlice = pwm_gpio_to_slice_num(EscPwmPin);
-	EscPwmDutyUs = EscPwmDutyOffUs;
-
-	pwm_clear_irq(EscPwmSlice);
-	pwm_set_irq_enabled(EscPwmSlice, true);
-	irq_set_exclusive_handler(PWM_IRQ_WRAP, on_pwm_wrap);
-	irq_set_enabled(PWM_IRQ_WRAP, true);
+	EscPwmChannel = pwm_gpio_to_channel(EscPwmPin);
 
 	pwm_set_clkdiv_int_frac(EscPwmSlice, EscPwmClkDivider, 0);
 	pwm_set_wrap(EscPwmSlice, EscPwmPeriodUs);
-	pwm_set_chan_level(EscPwmSlice, 0, EscPwmDutyUs);
+	pwm_set_chan_level(EscPwmSlice, EscPwmChannel, EscPwmDutyOffUs);
 	pwm_set_enabled(EscPwmSlice, true);
+
+	pwm_gen_interval( 0, 10, EscPwmDutyOffUs, EscPwmDutyMaxUs);
+	pwm_gen_interval(10, 20, EscPwmDutyMaxUs, EscPwmDutyMaxUs);
+	pwm_gen_interval(20, 30, EscPwmDutyMaxUs, EscPwmDutyMinUs);
+	pwm_gen_interval(30, 40, EscPwmDutyMinUs, EscPwmDutyMaxUs);
+	pwm_gen_interval(40, 50, EscPwmDutyMaxUs, EscPwmDutyOffUs);
+
+	EscPwmDmaChannel = dma_claim_unused_channel(true);
+	dma_channel_config dma_config = dma_channel_get_default_config(EscPwmDmaChannel);
+
+	channel_config_set_transfer_data_size(&dma_config, DMA_SIZE_16);
+	channel_config_set_read_increment(&dma_config, true);
+	channel_config_set_write_increment(&dma_config, false);
+	channel_config_set_dreq(&dma_config, pwm_get_dreq(EscPwmSlice));
+
+	assert(EscPwmChannel == PWM_CHAN_A);
+	dma_channel_configure(
+		EscPwmDmaChannel,
+		&dma_config,
+		&pwm_hw->slice[EscPwmSlice].cc, // Write address (PWM counter compare)
+		PwmData, // Read address (data array)
+		count_of(PwmData), // Transfer count
+		false // do not start yet
+	);
 
 	// This example will use I2C0 on the default SDA and SCL pins (4, 5 on a Pico)
 	i2c_init(i2c_default, 400 * 1000);

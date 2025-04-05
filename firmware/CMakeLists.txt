@@ -79,6 +79,7 @@ target_link_libraries(swing-propeller
 	pico_unique_id
 	hardware_i2c
 	hardware_pwm
+	hardware_dma
 	tinyusb_device
 	tinyusb_board
 )

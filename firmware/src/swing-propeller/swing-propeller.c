@@ -26,7 +26,8 @@ const uint GyroCalibrationTargetSamples = 200;
 const uint EscPwmPeriodUs = 20000;
 const uint EscPwmDutyOffUs = 1100;
 const uint EscPwmDutyMinUs = 1200;
-const uint EscPwmDutyMaxUs = 1400;
+const uint EscPwmDutySlowUs = 1250;
+const uint EscPwmDutyMaxUs = 1350;
 const uint EscPwmClkDivider = SYS_CLK_KHZ / 1000;
 
 const uint8_t SwingAxis = 0;
@@ -48,7 +49,12 @@ uint EscPwmSlice;
 uint EscPwmChannel;
 int EscPwmDmaChannel;
 
-uint16_t PwmData[50];
+enum PwmDataConstants {
+	PwmWaveformSampleCount = 50,
+	PwmWaveformCount = 4,
+};
+uint16_t PwmWaveforms[PwmWaveformCount][PwmWaveformSampleCount];
+uint currentPwmWaveform;
 
 uint64_t lastEcho;
 uint64_t lastData;
@@ -70,15 +76,16 @@ void spinUpPropeller() {
 	// the previous dma transfer should be already finished
 	if (!dma_channel_is_busy(EscPwmDmaChannel)) {
 		// reset the dma read address, transfer count and retrigger it
-		dma_channel_set_read_addr(EscPwmDmaChannel, PwmData, false);
-		dma_channel_set_trans_count(EscPwmDmaChannel, count_of(PwmData), true);
+		dma_channel_set_read_addr(EscPwmDmaChannel, PwmWaveforms[currentPwmWaveform], false);
+		dma_channel_set_trans_count(EscPwmDmaChannel, PwmWaveformSampleCount, true);
+		currentPwmWaveform = (currentPwmWaveform + 1) % PwmWaveformCount;
 	}
 }
 
 bool swingPeriodIsAcceptable() {
 	static const uint64_t SwingPeriodAcceptableMinUs = 2000000; // roughly 1m pendulum
 	static const uint64_t SwingPeriodAcceptableMaxUs = 4500000; // roughly 5m pendulum
-	assert(SwingPeriodAcceptableMinUs >= 2 * count_of(PwmData) * EscPwmPeriodUs);
+	assert(SwingPeriodAcceptableMinUs >= 2 * PwmWaveformSampleCount * EscPwmPeriodUs);
 	return swingPeriodUs >= SwingPeriodAcceptableMinUs
 		&& swingPeriodUs <= SwingPeriodAcceptableMaxUs;
 }
@@ -201,8 +208,11 @@ void placeholder_task() {
 		lastEcho = now;
 
 #if 0
-		for (size_t i = 0; i < count_of(PwmData); ++i) {
-			printf("%u\n", (uint)PwmData[i]);
+		for (size_t wf = 0; wf < PwmWaveformCount; ++wf) {
+			printf("== waveform %u ==\n", (uint)wf);
+			for (size_t s = 0; s < PwmWaveformSampleCount; ++s) {
+				printf("%u\n", (uint)PwmWaveforms[wf][s]);
+			}
 		}
 #endif
 	}
@@ -218,14 +228,36 @@ void placeholder_task() {
 	}
 }
 
-void pwm_gen_interval(size_t beginIdx, size_t endIdx, int rampBegin, int rampEnd) {
-	assert(endIdx <= count_of(PwmData));
+void pwm_waveform_lineseg(size_t waveform, size_t beginIdx, size_t endIdx, int beginValue, int endValue) {
+	assert(waveform < PwmWaveformCount);
+	assert(endIdx <= PwmWaveformSampleCount);
 	assert(beginIdx + 1 < endIdx);
-	const int diff = rampEnd - rampBegin;
+	const int diff = endValue - beginValue;
 	const int interval = endIdx - beginIdx;
 	for (int i = 0; i < interval; ++i) {
-		PwmData[beginIdx + i] = rampBegin + diff * i / (interval - 1);
+		PwmWaveforms[waveform][beginIdx + i] = beginValue + diff * i / (interval - 1);
 	}
+}
+
+void pwm_waveforms_generate() {
+	pwm_waveform_lineseg(0,  0, 10, EscPwmDutyOffUs, EscPwmDutyMaxUs);
+	pwm_waveform_lineseg(0, 10, 20, EscPwmDutyMaxUs, EscPwmDutyMaxUs);
+	pwm_waveform_lineseg(0, 20, 30, EscPwmDutyMaxUs, EscPwmDutyMinUs);
+	pwm_waveform_lineseg(0, 30, 40, EscPwmDutyMinUs, EscPwmDutyMaxUs);
+	pwm_waveform_lineseg(0, 40, 50, EscPwmDutyMaxUs, EscPwmDutyOffUs);
+
+	pwm_waveform_lineseg(1,  0, 10, EscPwmDutyOffUs, EscPwmDutySlowUs);
+	pwm_waveform_lineseg(1, 10, 40, EscPwmDutySlowUs, EscPwmDutySlowUs);
+	pwm_waveform_lineseg(1, 40, 50, EscPwmDutySlowUs, EscPwmDutyOffUs);
+
+	pwm_waveform_lineseg(2,  0, 10, EscPwmDutyOffUs, EscPwmDutyMaxUs);
+	pwm_waveform_lineseg(2, 10, 20, EscPwmDutyMaxUs, EscPwmDutyMinUs);
+	pwm_waveform_lineseg(2, 20, 30, EscPwmDutyMinUs, EscPwmDutyMinUs);
+	pwm_waveform_lineseg(2, 30, 40, EscPwmDutyMinUs, EscPwmDutyMaxUs);
+	pwm_waveform_lineseg(2, 40, 50, EscPwmDutyMaxUs, EscPwmDutyOffUs);
+
+	pwm_waveform_lineseg(3,  0, 25, EscPwmDutyOffUs, EscPwmDutySlowUs);
+	pwm_waveform_lineseg(3, 25, 50, EscPwmDutySlowUs, EscPwmDutyOffUs);
 }
 
 int main(void) {
@@ -249,11 +281,7 @@ int main(void) {
 	pwm_set_chan_level(EscPwmSlice, EscPwmChannel, EscPwmDutyOffUs);
 	pwm_set_enabled(EscPwmSlice, true);
 
-	pwm_gen_interval( 0, 10, EscPwmDutyOffUs, EscPwmDutyMaxUs);
-	pwm_gen_interval(10, 20, EscPwmDutyMaxUs, EscPwmDutyMaxUs);
-	pwm_gen_interval(20, 30, EscPwmDutyMaxUs, EscPwmDutyMinUs);
-	pwm_gen_interval(30, 40, EscPwmDutyMinUs, EscPwmDutyMaxUs);
-	pwm_gen_interval(40, 50, EscPwmDutyMaxUs, EscPwmDutyOffUs);
+	pwm_waveforms_generate();
 
 	EscPwmDmaChannel = dma_claim_unused_channel(true);
 	dma_channel_config dma_config = dma_channel_get_default_config(EscPwmDmaChannel);
@@ -268,8 +296,8 @@ int main(void) {
 		EscPwmDmaChannel,
 		&dma_config,
 		&pwm_hw->slice[EscPwmSlice].cc, // Write address (PWM counter compare)
-		PwmData, // Read address (data array)
-		count_of(PwmData), // Transfer count
+		PwmWaveforms[currentPwmWaveform], // Read address (data array)
+		PwmWaveformSampleCount, // Transfer count
 		false // do not start yet
 	);
 

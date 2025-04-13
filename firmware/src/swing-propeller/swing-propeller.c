@@ -51,7 +51,7 @@ int EscPwmDmaChannel;
 
 enum PwmDataConstants {
 	PwmWaveformSampleCount = 50,
-	PwmWaveformCount = 4,
+	PwmWaveformCount = 5,
 };
 uint16_t PwmWaveforms[PwmWaveformCount][PwmWaveformSampleCount];
 uint currentPwmWaveform;
@@ -256,8 +256,17 @@ void pwm_waveforms_generate() {
 	pwm_waveform_lineseg(2, 30, 40, EscPwmDutyMinUs, EscPwmDutyMaxUs);
 	pwm_waveform_lineseg(2, 40, 50, EscPwmDutyMaxUs, EscPwmDutyOffUs);
 
-	pwm_waveform_lineseg(3,  0, 25, EscPwmDutyOffUs, EscPwmDutySlowUs);
-	pwm_waveform_lineseg(3, 25, 50, EscPwmDutySlowUs, EscPwmDutyOffUs);
+	pwm_waveform_lineseg(3,  0,  5, EscPwmDutyOffUs, EscPwmDutyMinUs);
+	pwm_waveform_lineseg(3,  5, 25, EscPwmDutyMinUs, EscPwmDutySlowUs);
+	pwm_waveform_lineseg(3, 25, 45, EscPwmDutySlowUs, EscPwmDutyMinUs);
+	pwm_waveform_lineseg(3, 45, 50, EscPwmDutyMinUs, EscPwmDutyOffUs);
+
+	pwm_waveform_lineseg(4,  0,  5, EscPwmDutyOffUs, EscPwmDutyMinUs);
+	for (uint s = 5; s + 10 <= 45; s += 10) {
+		pwm_waveform_lineseg(4, s, s + 5, EscPwmDutyMinUs, EscPwmDutySlowUs);
+		pwm_waveform_lineseg(4, s + 5, s + 10, EscPwmDutySlowUs, EscPwmDutyMinUs);
+	}
+	pwm_waveform_lineseg(4, 45, 50, EscPwmDutyMinUs, EscPwmDutyOffUs);
 }
 
 int main(void) {

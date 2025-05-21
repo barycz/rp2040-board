@@ -51,7 +51,7 @@ int EscPwmDmaChannel;
 
 enum PwmDataConstants {
 	PwmWaveformSampleCount = 50,
-	PwmWaveformCount = 6,
+	PwmWaveformCount = 10,
 };
 uint16_t PwmWaveforms[PwmWaveformCount][PwmWaveformSampleCount];
 uint currentPwmWaveform;
@@ -189,6 +189,7 @@ void mpu6050_task() {
 	filterData(accelDataRaw, accelDataFiltered);
 	filterData(gyroDataRaw, gyroDataFiltered);
 
+#if 0
 	char buffer[255];
 	sprintf(buffer, "%d,%d,%d,%d,%d,%d\r",
 		accelDataFiltered[0], accelDataFiltered[1], accelDataFiltered[2],
@@ -198,6 +199,7 @@ void mpu6050_task() {
 	);
 	tud_cdc_n_write_str(DataDebugUart, buffer);
 	tud_cdc_n_write_flush(DataDebugUart);
+#endif
 }
 
 void placeholder_task() {
@@ -209,9 +211,11 @@ void placeholder_task() {
 
 #if 0
 		for (size_t wf = 0; wf < PwmWaveformCount; ++wf) {
-			printf("== waveform %u ==\n", (uint)wf);
 			for (size_t s = 0; s < PwmWaveformSampleCount; ++s) {
-				printf("%u\n", (uint)PwmWaveforms[wf][s]);
+				char buffer[64];
+				sprintf(buffer, "%u,%u\n", (uint)PwmWaveforms[wf][s], (uint)PwmWaveforms[wf][s]);
+				tud_cdc_n_write_str(DataDebugUart, buffer);
+				tud_cdc_n_write_flush(DataDebugUart);
 			}
 		}
 #endif
@@ -240,37 +244,69 @@ void pwm_waveform_lineseg(size_t waveform, size_t beginIdx, size_t endIdx, int b
 }
 
 void pwm_waveforms_generate() {
-	pwm_waveform_lineseg(0,  0, 10, EscPwmDutyOffUs, EscPwmDutyMaxUs);
-	pwm_waveform_lineseg(0, 10, 20, EscPwmDutyMaxUs, EscPwmDutyMaxUs);
-	pwm_waveform_lineseg(0, 20, 30, EscPwmDutyMaxUs, EscPwmDutyMinUs);
-	pwm_waveform_lineseg(0, 30, 40, EscPwmDutyMinUs, EscPwmDutyMaxUs);
-	pwm_waveform_lineseg(0, 40, 50, EscPwmDutyMaxUs, EscPwmDutyOffUs);
+	// Predefined duty cycle values
+	const int predefined_duty_cycles[] = {
+		EscPwmDutyOffUs,
+		EscPwmDutyMinUs,
+		EscPwmDutySlowUs,
+		EscPwmDutyMaxUs
+	};
+	const size_t num_predefined = sizeof(predefined_duty_cycles) / sizeof(predefined_duty_cycles[0]);
+	const size_t num_segments = 4; // Number of random segments
+	const uint total_duration = PwmWaveformSampleCount; // Total duration in ms
+	const uint off_duration = 5;    // Duration of off state segments in ms
+	const uint segment_span = (total_duration - 2 * off_duration) / num_segments; // Calculate span from total duration and segments
 
-	pwm_waveform_lineseg(1,  0,  5, EscPwmDutyOffUs, EscPwmDutySlowUs);
-	pwm_waveform_lineseg(1,  5, 40, EscPwmDutySlowUs, EscPwmDutySlowUs);
-	pwm_waveform_lineseg(1, 40, 45, EscPwmDutySlowUs, EscPwmDutyMaxUs);
-	pwm_waveform_lineseg(1, 45, 50, EscPwmDutyMaxUs, EscPwmDutyOffUs);
+	// Transition probability matrix
+	// Format: [from_duty][to_duty] = probability (0-100)
+	// Rows: Off, Min, Slow, Max
+	// Columns: Off, Min, Slow, Max
+	const uint8_t transition_probabilities[4][4] = {
+		// Off -> Off, Min, Slow, Max
+		{ 0, 40, 40, 20 },
+		// Min -> Off, Min, Slow, Max
+		{ 0, 10, 50, 40 },
+		// Slow -> Off, Min, Slow, Max
+		{ 0, 45, 10, 45 },
+		// Max -> Off, Min, Slow, Max
+		{ 0, 50, 40, 10 }
+	};
 
-	pwm_waveform_lineseg(2,  0, 10, EscPwmDutyOffUs, EscPwmDutyMaxUs);
-	pwm_waveform_lineseg(2, 10, 20, EscPwmDutyMaxUs, EscPwmDutyMinUs);
-	pwm_waveform_lineseg(2, 20, 30, EscPwmDutyMinUs, EscPwmDutyMinUs);
-	pwm_waveform_lineseg(2, 30, 40, EscPwmDutyMinUs, EscPwmDutyMaxUs);
-	pwm_waveform_lineseg(2, 40, 50, EscPwmDutyMaxUs, EscPwmDutyOffUs);
+	// Generate random waveforms for each of the waveform
+	for (uint waveform = 0; waveform < PwmWaveformCount; waveform++) {
+		// Start with off state
+		size_t current_idx = 0;
 
-	pwm_waveform_lineseg(3,  0, 10, EscPwmDutyOffUs, EscPwmDutyMaxUs);
-	pwm_waveform_lineseg(3, 10, 45, EscPwmDutyMaxUs, EscPwmDutyMinUs);
-	pwm_waveform_lineseg(3, 45, 50, EscPwmDutyMinUs, EscPwmDutyOffUs);
+		// Generate segments (including the first one after off state)
+		for (uint seg = 0; seg <= num_segments + 1; seg++) {
+			// Calculate start and end times
+			uint start_time = seg == 0 ? 0 : off_duration + (seg - 1) * segment_span;
+			uint end_time = seg == 0 ? off_duration : start_time + segment_span;
 
-	pwm_waveform_lineseg(4,  0,  5, EscPwmDutyOffUs, EscPwmDutySlowUs);
-	for (uint s = 5; s + 10 <= 45; s += 10) {
-		pwm_waveform_lineseg(4, s, s + 5, EscPwmDutySlowUs, EscPwmDutyMaxUs);
-		pwm_waveform_lineseg(4, s + 5, s + 10, EscPwmDutyMaxUs, EscPwmDutySlowUs);
+			// Select next duty based on probabilities
+			uint8_t rand_val = rand() % 100; // Get random value 0-99
+			uint8_t cumulative_prob = 0;
+			size_t next_idx = 0;
+
+			// Find which probability range the random value falls into
+			for (size_t i = 0; i < num_predefined; i++) {
+				cumulative_prob += transition_probabilities[current_idx][i];
+				if (rand_val < cumulative_prob) {
+					next_idx = i;
+					break;
+				}
+			}
+
+			// For the last segment, go back to off state
+			if (seg == num_segments + 1) {
+				next_idx = 0; // Force off state
+				end_time = total_duration;
+			}
+
+			pwm_waveform_lineseg(waveform, start_time, end_time, predefined_duty_cycles[current_idx], predefined_duty_cycles[next_idx]);
+			current_idx = next_idx; // Update current index for next segment
+		}
 	}
-	pwm_waveform_lineseg(4, 45, 50, EscPwmDutySlowUs, EscPwmDutyOffUs);
-
-	pwm_waveform_lineseg(5,  0,  5, EscPwmDutyOffUs, EscPwmDutyMinUs);
-	pwm_waveform_lineseg(5,  5, 45, EscPwmDutyMinUs, EscPwmDutyMaxUs);
-	pwm_waveform_lineseg(5, 45, 50, EscPwmDutyMaxUs, EscPwmDutyOffUs);
 }
 
 int main(void) {

@@ -26,8 +26,8 @@ const uint GyroCalibrationTargetSamples = 200;
 const uint EscPwmPeriodUs = 20000;
 const uint EscPwmDutyOffUs = 1100;
 const uint EscPwmDutyMinUs = 1200;
-const uint EscPwmDutySlowUs = 1250;
-const uint EscPwmDutyMaxUs = 1350;
+const uint EscPwmDutySlowUs = 1280;
+const uint EscPwmDutyMaxUs = 1360;
 const uint EscPwmClkDivider = SYS_CLK_KHZ / 1000;
 
 const uint8_t SwingAxis = 0;
@@ -51,10 +51,11 @@ int EscPwmDmaChannel;
 
 enum PwmDataConstants {
 	PwmWaveformSampleCount = 50,
-	PwmWaveformCount = 10,
+	PwmWaveformBufferCount = 2,
 };
-uint16_t PwmWaveforms[PwmWaveformCount][PwmWaveformSampleCount];
-uint currentPwmWaveform;
+uint16_t PwmWaveformBuffers[PwmWaveformBufferCount][PwmWaveformSampleCount];
+uint currentPwmBuffer = 0;
+uint nextPwmBuffer = 1;
 
 uint64_t lastEcho;
 uint64_t lastData;
@@ -72,13 +73,23 @@ int32_t swingAxisValue;
 uint64_t swingLastPeakUs;
 uint64_t swingPeriodUs;
 
+void pwm_waveforms_generate();
+
 void spinUpPropeller() {
 	// the previous dma transfer should be already finished
 	if (!dma_channel_is_busy(EscPwmDmaChannel)) {
-		// reset the dma read address, transfer count and retrigger it
-		dma_channel_set_read_addr(EscPwmDmaChannel, PwmWaveforms[currentPwmWaveform], false);
-		dma_channel_set_trans_count(EscPwmDmaChannel, PwmWaveformSampleCount, true);
-		currentPwmWaveform = (currentPwmWaveform + 1) % PwmWaveformCount;
+		// Switch to the next buffer
+		uint temp = currentPwmBuffer;
+		currentPwmBuffer = nextPwmBuffer;
+		nextPwmBuffer = temp;
+
+		// Update DMA with the new buffer
+		dma_channel_set_read_addr(EscPwmDmaChannel, PwmWaveformBuffers[currentPwmBuffer], false);
+		// Start the DMA transfer
+		dma_channel_start(EscPwmDmaChannel);
+
+		// Generate new waveform for the next buffer
+		pwm_waveforms_generate();
 	}
 }
 
@@ -132,6 +143,7 @@ void swing_calibration_task() {
 		for (int i = 0; i < 3; i++) {
 			gyroCalibration[i] /= gyroNumTakenCalibSamples;
 		}
+		srand(gyroCalibration[0] + gyroCalibration[1] + gyroCalibration[2]);
 	}
 }
 
@@ -213,7 +225,7 @@ void placeholder_task() {
 		for (size_t wf = 0; wf < PwmWaveformCount; ++wf) {
 			for (size_t s = 0; s < PwmWaveformSampleCount; ++s) {
 				char buffer[64];
-				sprintf(buffer, "%u,%u\n", (uint)PwmWaveforms[wf][s], (uint)PwmWaveforms[wf][s]);
+				sprintf(buffer, "%u,%u\n", (uint)PwmWaveformBuffers[wf][s], (uint)PwmWaveformBuffers[wf][s]);
 				tud_cdc_n_write_str(DataDebugUart, buffer);
 				tud_cdc_n_write_flush(DataDebugUart);
 			}
@@ -233,13 +245,13 @@ void placeholder_task() {
 }
 
 void pwm_waveform_lineseg(size_t waveform, size_t beginIdx, size_t endIdx, int beginValue, int endValue) {
-	assert(waveform < PwmWaveformCount);
+	assert(waveform < PwmWaveformBufferCount);
 	assert(endIdx <= PwmWaveformSampleCount);
 	assert(beginIdx + 1 < endIdx);
 	const int diff = endValue - beginValue;
 	const int interval = endIdx - beginIdx;
 	for (int i = 0; i < interval; ++i) {
-		PwmWaveforms[waveform][beginIdx + i] = beginValue + diff * i / (interval - 1);
+		PwmWaveformBuffers[waveform][beginIdx + i] = beginValue + diff * i / (interval - 1);
 	}
 }
 
@@ -253,8 +265,8 @@ void pwm_waveforms_generate() {
 	};
 	const size_t num_predefined = sizeof(predefined_duty_cycles) / sizeof(predefined_duty_cycles[0]);
 	const size_t num_segments = 4; // Number of random segments
-	const uint total_duration = PwmWaveformSampleCount; // Total duration in ms
-	const uint off_duration = 5;    // Duration of off state segments in ms
+	const uint total_duration = PwmWaveformSampleCount;
+	const uint off_duration = 5;
 	const uint segment_span = (total_duration - 2 * off_duration) / num_segments; // Calculate span from total duration and segments
 
 	// Transition probability matrix
@@ -272,40 +284,37 @@ void pwm_waveforms_generate() {
 		{ 0, 50, 40, 10 }
 	};
 
-	// Generate random waveforms for each of the waveform
-	for (uint waveform = 0; waveform < PwmWaveformCount; waveform++) {
-		// Start with off state
-		size_t current_idx = 0;
+	// Generate random waveform for the next buffer
+	size_t current_idx = 0;
 
-		// Generate segments (including the first one after off state)
-		for (uint seg = 0; seg <= num_segments + 1; seg++) {
-			// Calculate start and end times
-			uint start_time = seg == 0 ? 0 : off_duration + (seg - 1) * segment_span;
-			uint end_time = seg == 0 ? off_duration : start_time + segment_span;
+	// Generate segments (including the first one after off state)
+	for (uint seg = 0; seg <= num_segments + 1; seg++) {
+		// Calculate start and end times
+		uint start_time = seg == 0 ? 0 : off_duration + (seg - 1) * segment_span;
+		uint end_time = seg == 0 ? off_duration : start_time + segment_span;
 
-			// Select next duty based on probabilities
-			uint8_t rand_val = rand() % 100; // Get random value 0-99
-			uint8_t cumulative_prob = 0;
-			size_t next_idx = 0;
+		// Select next duty based on probabilities
+		uint8_t rand_val = rand() % 100; // Get random value 0-99
+		uint8_t cumulative_prob = 0;
+		size_t next_idx = 0;
 
-			// Find which probability range the random value falls into
-			for (size_t i = 0; i < num_predefined; i++) {
-				cumulative_prob += transition_probabilities[current_idx][i];
-				if (rand_val < cumulative_prob) {
-					next_idx = i;
-					break;
-				}
+		// Find which probability range the random value falls into
+		for (size_t i = 0; i < num_predefined; i++) {
+			cumulative_prob += transition_probabilities[current_idx][i];
+			if (rand_val < cumulative_prob) {
+				next_idx = i;
+				break;
 			}
-
-			// For the last segment, go back to off state
-			if (seg == num_segments + 1) {
-				next_idx = 0; // Force off state
-				end_time = total_duration;
-			}
-
-			pwm_waveform_lineseg(waveform, start_time, end_time, predefined_duty_cycles[current_idx], predefined_duty_cycles[next_idx]);
-			current_idx = next_idx; // Update current index for next segment
 		}
+
+		// For the last segment, go back to off state
+		if (seg == num_segments + 1) {
+			next_idx = 0; // Force off state
+			end_time = total_duration;
+		}
+
+		pwm_waveform_lineseg(nextPwmBuffer, start_time, end_time, predefined_duty_cycles[current_idx], predefined_duty_cycles[next_idx]);
+		current_idx = next_idx; // Update current index for next segment
 	}
 }
 
@@ -345,7 +354,7 @@ int main(void) {
 		EscPwmDmaChannel,
 		&dma_config,
 		&pwm_hw->slice[EscPwmSlice].cc, // Write address (PWM counter compare)
-		PwmWaveforms[currentPwmWaveform], // Read address (data array)
+		PwmWaveformBuffers[nextPwmBuffer], // Read address (data array)
 		PwmWaveformSampleCount, // Transfer count
 		false // do not start yet
 	);

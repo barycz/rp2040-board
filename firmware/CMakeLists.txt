@@ -85,26 +85,26 @@ target_link_libraries(swing-propeller
 )
 
 # crsf to midi
-add_executable(crsf-to-midi
-	src/crsf-to-midi/crsf-to-midi.cpp
+add_executable(crsf-bridge
+	src/crsf-bridge/crsf-bridge.cpp
 	src/midi-joystick/usb_descriptors.c
-	src/crsf-to-midi/CRServoF/CrsfSerial/CrsfSerial.cpp
-	src/crsf-to-midi/CRServoF/crc8/crc8.cpp
+	src/crsf-bridge/CRServoF/CrsfSerial/CrsfSerial.cpp
+	src/crsf-bridge/CRServoF/crc8/crc8.cpp
 )
 
-target_include_directories(crsf-to-midi PUBLIC
-	src/crsf-to-midi
-	src/crsf-to-midi/CRServoF/crc8
-	src/crsf-to-midi/CRServoF/CrsfSerial
+target_include_directories(crsf-bridge PUBLIC
+	src/crsf-bridge
+	src/crsf-bridge/CRServoF/crc8
+	src/crsf-bridge/CRServoF/CrsfSerial
 	src/midi-joystick
 )
 
-pico_enable_stdio_usb(crsf-to-midi 1)
-pico_enable_stdio_uart(crsf-to-midi 0)
+pico_enable_stdio_usb(crsf-bridge 1)
+pico_enable_stdio_uart(crsf-bridge 0)
 
-pico_add_extra_outputs(crsf-to-midi)
+pico_add_extra_outputs(crsf-bridge)
 
-target_link_libraries(crsf-to-midi
+target_link_libraries(crsf-bridge
 	pico_stdlib
 	pico_unique_id
 	tinyusb_device

@@ -11,6 +11,8 @@ pico_sdk_init()
 
 include_directories(
 	lib/pico-ssd1306
+	lib/CRServoF/CrsfSerial
+	lib/CRServoF/crc8
 )
 
 # dmx controller app
@@ -88,8 +90,8 @@ target_link_libraries(swing-propeller
 add_executable(crsf-bridge
 	src/crsf-bridge/crsf-bridge.cpp
 	src/midi-joystick/usb_descriptors.c
-	src/crsf-bridge/CRServoF/CrsfSerial/CrsfSerial.cpp
-	src/crsf-bridge/CRServoF/crc8/crc8.cpp
+	lib/CRServoF/CrsfSerial/CrsfSerial.cpp
+	lib/CRServoF/crc8/crc8.cpp
 )
 
 target_include_directories(crsf-bridge PUBLIC

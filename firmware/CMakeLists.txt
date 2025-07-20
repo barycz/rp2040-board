@@ -109,6 +109,7 @@ pico_add_extra_outputs(crsf-bridge)
 target_link_libraries(crsf-bridge
 	pico_stdlib
 	pico_unique_id
+	hardware_pwm
 	tinyusb_device
 	tinyusb_board
 )

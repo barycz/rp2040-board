@@ -10,6 +10,7 @@
 #include "pico/binary_info.h"
 #include "hardware/uart.h"
 #include "hardware/timer.h"
+#include "hardware/pwm.h"
 
 #include "bsp/board.h"
 #include "tusb.h"
@@ -25,6 +26,8 @@ const uint RotarySW = 19;
 
 const uint CrsfTx = 20;
 const uint CrsfRx = 21;
+static const int CrsfMin = 989;
+static const int CrsfMax = 2011;
 
 const uint JoystickPins[] = {28, 29};
 const uint JoystickInputs[] = {2, 3};
@@ -32,6 +35,14 @@ const uint JoystickInputs[] = {2, 3};
 const uint MidiCable = 0;
 const uint MidiChannel = 0;
 const uint MidiDataMask = 0x7f; // 7bits
+
+// successive GPIO pins are mapped to succesive PWM channels and slices
+const uint MotorPwmOutPinsFirst = 0;
+const uint MotorPwmPeriodUs = 1000;
+const uint MotorPwmClkDivider = SYS_CLK_KHZ / 1000;
+const uint MotorCount = 4;
+
+std::array<uint, MotorCount> MotorPwmSlices;
 
 static CrsfSerial crsf(uart1);
 static bool crsfNewPacket = false;
@@ -64,17 +75,25 @@ void midi_task(const ControllerDataArray& dataArray) {
 	}
 }
 
-static uint8_t mapCrsfChannelToMidi(int channelData) {
-	static const int crsfMin = 989;
-	static const int crsfMax = 2011;
+static uint8_t map_crsf_channel_to_midi(int channelData) {
 	static const int midiMax = MidiDataMask;
-	if (channelData < crsfMin) {
+	if (channelData < CrsfMin) {
 		return 0;
 	}
-	if (channelData > crsfMax) {
+	if (channelData > CrsfMax) {
 		return midiMax;
 	}
-	return (channelData - crsfMin) * midiMax / (crsfMax - crsfMin);
+	return (channelData - CrsfMin) * midiMax / (CrsfMax - CrsfMin);
+}
+
+static uint16_t map_crsf_channel_to_pwm(int channelData) {
+	if (channelData < CrsfMin) {
+		return 0;
+	}
+	if (channelData > CrsfMax) {
+		return MotorPwmPeriodUs;
+	}
+	return (channelData - CrsfMin) * MotorPwmPeriodUs / (CrsfMax - CrsfMin);
 }
 
 static void onCrsfPacketChannels() {
@@ -93,16 +112,25 @@ static void onCrsfOobData(uint8_t b) {
 	//printf("CRSF oob data %x", static_cast<uint>(b));
 }
 
-void crsf_to_midi_update() {
+void pwm_task(std::array<int, MotorCount> sticks) {
+	// demo mode
+	for (uint motor = 0; motor < MotorCount; ++motor) {
+		const uint PwmSlice = MotorPwmSlices[motor];
+		const uint16_t level = map_crsf_channel_to_pwm(sticks[motor]);
+		pwm_set_chan_level(PwmSlice, 0, level);
+	}
+}
+
+void crsf_bridge_update() {
 	if (crsfNewPacket == false) {
 		return;
 	}
 
-	int sticksEATR[4] = {
-		mapCrsfChannelToMidi(crsf.getChannel(1)),
-		mapCrsfChannelToMidi(crsf.getChannel(2)),
-		mapCrsfChannelToMidi(crsf.getChannel(3)),
-		mapCrsfChannelToMidi(crsf.getChannel(4)),
+	const std::array<int, 4> sticksEATR = {
+		crsf.getChannel(1),
+		crsf.getChannel(2),
+		crsf.getChannel(3),
+		crsf.getChannel(4),
 	};
 
 	//printf("CRSF packet channels: %d %d %d %d\n",
@@ -110,10 +138,12 @@ void crsf_to_midi_update() {
 
 	ControllerDataArray dataArray;
 	dataArray[0].Controller = 1; // mod wheel
-	dataArray[0].Data = sticksEATR[2];
+	dataArray[0].Data = map_crsf_channel_to_midi(sticksEATR[2]);
 	dataArray[1].Controller = 4; // foot pedal
-	dataArray[1].Data = sticksEATR[3];
+	dataArray[1].Data = map_crsf_channel_to_midi(sticksEATR[3]);
 	midi_task(dataArray);
+
+	pwm_task(sticksEATR);
 
 	crsfNewPacket = false;
 }
@@ -139,6 +169,24 @@ void init() {
 	gpio_init(RotarySW);
 	gpio_pull_up(RotarySW);
 
+	for (uint motor = 0; motor < MotorCount; ++motor) {
+		const uint pinA = MotorPwmOutPinsFirst + motor * 2;
+		const uint pinB = pinA + 1;
+
+		gpio_set_function(pinA, GPIO_FUNC_PWM);
+		gpio_set_function(pinB, GPIO_FUNC_PWM);
+
+		const uint PwmSlice = pwm_gpio_to_slice_num(pinA);
+
+		pwm_set_clkdiv_int_frac(PwmSlice, MotorPwmClkDivider, 0);
+		pwm_set_wrap(PwmSlice, MotorPwmPeriodUs);
+		pwm_set_chan_level(PwmSlice, 0, 0);
+		pwm_set_chan_level(PwmSlice, 1, 0);
+		pwm_set_enabled(PwmSlice, true);
+
+		MotorPwmSlices[motor] = PwmSlice;
+	}
+
 	gpio_set_function(CrsfTx, GPIO_FUNC_UART);
 	gpio_set_function(CrsfRx, GPIO_FUNC_UART);
 
@@ -154,7 +202,7 @@ void update() {
 
 	crsf.loop();
 	tud_task();
-	crsf_to_midi_update();
+	crsf_bridge_update();
 
 	gpio_put(LedYellow, 0);
 	sleep_ms(10);

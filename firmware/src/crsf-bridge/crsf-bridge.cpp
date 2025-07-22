@@ -26,8 +26,9 @@ const uint RotarySW = 19;
 
 const uint CrsfTx = 20;
 const uint CrsfRx = 21;
-static const int CrsfMin = 989;
-static const int CrsfMax = 2011;
+const int CrsfMin = 989;
+const int CrsfMax = 2011;
+const uint CrsfStickCount = 4;
 
 const uint JoystickPins[] = {28, 29};
 const uint JoystickInputs[] = {2, 3};
@@ -96,6 +97,16 @@ static uint16_t map_crsf_channel_to_pwm(int channelData) {
 	return (channelData - CrsfMin) * MotorPwmPeriodUs / (CrsfMax - CrsfMin);
 }
 
+static float map_crsf_channel_to_float01(int channelData) {
+	if (channelData < CrsfMin) {
+		return 0;
+	}
+	if (channelData > CrsfMax) {
+		return 1.f;
+	}
+	return static_cast<float>(channelData - CrsfMin) / (CrsfMax - CrsfMin);
+}
+
 static void onCrsfPacketChannels() {
 	crsfNewPacket = true;
 }
@@ -112,12 +123,42 @@ static void onCrsfOobData(uint8_t b) {
 	//printf("CRSF oob data %x", static_cast<uint>(b));
 }
 
-void pwm_task(std::array<int, MotorCount> sticks) {
-	// demo mode
+void pwm_task(std::array<int, CrsfStickCount> sticksAETR) {
+
+	std::array<std::array<float, MotorCount>, CrsfStickCount> mixingMatrix = {{
+		{ 1.f, -1.f,  1.f, -1.f }, // ailerons
+		{ 1.f,  1.f,  1.f,  1.f }, // elevators
+		{ 0.f,  0.f,  0.f,  0.f }, // throttle
+		{ 1.f, -1.f, -1.f,  1.f }, // rudder
+	}};
+
+	std::array<float, MotorCount> motors;
+	motors.fill(0.f);
+
+	for (uint stick = 0; stick < CrsfStickCount; ++stick) {
+		const float stickVal01 = map_crsf_channel_to_float01(sticksAETR[stick]);
+		const float stickVal11 = stickVal01 * 2.f - 1.f;
+		const std::array<float, MotorCount>& motorCoefs = mixingMatrix[stick];
+		for (uint motor = 0; motor < MotorCount; ++motor) {
+			motors[motor] += motorCoefs[motor] * stickVal11;
+		}
+	}
+
+	//printf("motors %.2f %.2f %.2f %.2f\n",
+	//	motors[0], motors[1], motors[2], motors[3]);
+
 	for (uint motor = 0; motor < MotorCount; ++motor) {
 		const uint PwmSlice = MotorPwmSlices[motor];
-		const uint16_t level = map_crsf_channel_to_pwm(sticks[motor]);
-		pwm_set_chan_level(PwmSlice, 0, level);
+		static const float DeadZone = 0.05f;
+		if (motors[motor] > DeadZone) {
+			const uint16_t level = motors[motor] * MotorPwmPeriodUs;
+			pwm_set_both_levels(PwmSlice, level, 0);
+		} else if (motors[motor] < -DeadZone) {
+			const uint16_t level = -motors[motor] * MotorPwmPeriodUs;
+			pwm_set_both_levels(PwmSlice, 0, level);
+		} else {
+			pwm_set_both_levels(PwmSlice, 0, 0);
+		}
 	}
 }
 
@@ -126,7 +167,7 @@ void crsf_bridge_update() {
 		return;
 	}
 
-	const std::array<int, 4> sticksEATR = {
+	const std::array<int, CrsfStickCount> sticksAETR = {
 		crsf.getChannel(1),
 		crsf.getChannel(2),
 		crsf.getChannel(3),
@@ -138,12 +179,12 @@ void crsf_bridge_update() {
 
 	ControllerDataArray dataArray;
 	dataArray[0].Controller = 1; // mod wheel
-	dataArray[0].Data = map_crsf_channel_to_midi(sticksEATR[2]);
+	dataArray[0].Data = map_crsf_channel_to_midi(sticksAETR[2]);
 	dataArray[1].Controller = 4; // foot pedal
-	dataArray[1].Data = map_crsf_channel_to_midi(sticksEATR[3]);
+	dataArray[1].Data = map_crsf_channel_to_midi(sticksAETR[3]);
 	midi_task(dataArray);
 
-	pwm_task(sticksEATR);
+	pwm_task(sticksAETR);
 
 	crsfNewPacket = false;
 }

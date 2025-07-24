@@ -149,7 +149,7 @@ void pwm_task(std::array<int, CrsfStickCount> sticksAETR) {
 
 	for (uint motor = 0; motor < MotorCount; ++motor) {
 		const uint PwmSlice = MotorPwmSlices[motor];
-		static const float DeadZone = 0.05f;
+		static const float DeadZone = 0.2f;
 		if (motors[motor] > DeadZone) {
 			const uint16_t level = motors[motor] * MotorPwmPeriodUs;
 			pwm_set_both_levels(PwmSlice, level, 0);
@@ -218,6 +218,7 @@ void init() {
 		gpio_set_function(pinB, GPIO_FUNC_PWM);
 
 		const uint PwmSlice = pwm_gpio_to_slice_num(pinA);
+		assert(PwmSlice == pwm_gpio_to_slice_num(pinB));
 
 		pwm_set_clkdiv_int_frac(PwmSlice, MotorPwmClkDivider, 0);
 		pwm_set_wrap(PwmSlice, MotorPwmPeriodUs);

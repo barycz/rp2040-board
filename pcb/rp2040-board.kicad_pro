@@ -468,6 +468,7 @@
       "single_global_label": "ignore",
       "unannotated": "error",
       "unconnected_wire_endpoint": "warning",
+      "undefined_netclass": "error",
       "unit_value_mismatch": "error",
       "unresolved_variable": "error",
       "wire_dangling": "error"
@@ -721,6 +722,10 @@
     [
       "77a68358-fa71-49de-9938-40fd4b662344",
       "Motor Drivers"
+    ],
+    [
+      "381f0fb9-9558-4c4d-b450-961d2dbfdbfd",
+      "Power"
     ]
   ],
   "text_variables": {}

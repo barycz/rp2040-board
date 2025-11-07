@@ -2237,131 +2237,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "power:+5V"
-			(power)
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 0)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "#PWR"
-				(at 0 -3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Value" "+5V"
-				(at 0 3.556 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Power symbol creates a global label with name \"+5V\""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "global power"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "+5V_0_1"
-				(polyline
-					(pts
-						(xy -0.762 1.27) (xy 0 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 2.54) (xy 0.762 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 0) (xy 0 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "+5V_1_1"
-				(pin power_in line
-					(at 0 0 90)
-					(length 0)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "power:GND"
 			(power)
 			(pin_numbers
@@ -2811,7 +2686,7 @@
 	)
 	(global_label "GPIO12"
 		(shape input)
-		(at 111.76 110.49 180)
+		(at 93.98 125.73 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2821,7 +2696,7 @@
 		)
 		(uuid "008c883c-f992-4cf6-af8f-0dc39d9e83e0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 101.8805 110.49 0)
+			(at 84.1005 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2875,31 +2750,9 @@
 			)
 		)
 	)
-	(global_label "DRVNSLEEP"
-		(shape input)
-		(at 157.48 97.79 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "1bbf510c-9b68-46bf-9c3f-fc96d2d735e0")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 171.2299 97.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "GPIO11"
 		(shape input)
-		(at 111.76 107.95 180)
+		(at 93.98 123.19 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2909,7 +2762,7 @@
 		)
 		(uuid "1d374496-c217-4ce1-a44b-506963449c29")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 101.8805 107.95 0)
+			(at 84.1005 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2932,6 +2785,28 @@
 		(uuid "22d5bb96-70b4-41ed-964e-5c412e751b9a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 46.0005 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "RP_TX"
+		(shape input)
+		(at 111.76 80.01 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "2908f06b-b78a-4f44-9cbd-6c07828dfad8")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 103.0901 80.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2987,7 +2862,7 @@
 	)
 	(global_label "I2C_SCK"
 		(shape input)
-		(at 111.76 102.87 180)
+		(at 111.76 87.63 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2997,7 +2872,51 @@
 		)
 		(uuid "36e74787-7557-4ba7-88b5-10899317a417")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.9734 102.87 0)
+			(at 100.9734 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "RP_RX"
+		(shape input)
+		(at 111.76 82.55 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "37ea03e2-9bcb-4c92-88ff-bd094f1cfd77")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 102.7877 82.55 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "PICO_VSYS"
+		(shape input)
+		(at 55.88 99.06 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "3b9006eb-a1d4-4b63-a6b3-2dbfc3557347")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 42.8557 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3009,7 +2928,7 @@
 	)
 	(global_label "GPIO10"
 		(shape input)
-		(at 111.76 105.41 180)
+		(at 93.98 120.65 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3019,7 +2938,7 @@
 		)
 		(uuid "477c9ebe-db0c-42df-9a7f-da9c6a14b92c")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 101.8805 105.41 0)
+			(at 84.1005 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3075,7 +2994,7 @@
 	)
 	(global_label "DRVIN3A"
 		(shape input)
-		(at 111.76 90.17 180)
+		(at 111.76 110.49 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3085,12 +3004,56 @@
 		)
 		(uuid "63c0d178-37f3-4412-8a9f-d35cc450786e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.9128 90.17 0)
+			(at 100.9128 110.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "PICO_VSYS"
+		(shape input)
+		(at 214.63 124.46 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "64ae21ab-c147-48c2-b5e7-c54d7cd3fd07")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 214.63 111.4357 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "PICO_VSYS"
+		(shape input)
+		(at 199.39 124.46 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "65994ad1-3728-446c-82f5-4124d74ff17d")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 199.39 111.4357 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -3141,7 +3104,7 @@
 	)
 	(global_label "GPIO15"
 		(shape input)
-		(at 111.76 118.11 180)
+		(at 93.98 133.35 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3151,7 +3114,7 @@
 		)
 		(uuid "6e52bc57-c3d5-49de-8166-46c7d3f88c27")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 101.8805 118.11 0)
+			(at 84.1005 133.35 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3185,7 +3148,7 @@
 	)
 	(global_label "DRVIN2B"
 		(shape input)
-		(at 111.76 87.63 180)
+		(at 111.76 107.95 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3195,7 +3158,7 @@
 		)
 		(uuid "74c81afa-2973-4222-8ae8-31fcfa02b05e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.7314 87.63 0)
+			(at 100.7314 107.95 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3207,7 +3170,7 @@
 	)
 	(global_label "DRVIN2A"
 		(shape input)
-		(at 111.76 85.09 180)
+		(at 111.76 105.41 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3217,7 +3180,7 @@
 		)
 		(uuid "74da21d8-3eac-4c7f-b01a-d900b8e41f6a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.9128 85.09 0)
+			(at 100.9128 105.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3249,6 +3212,28 @@
 			)
 		)
 	)
+	(global_label "DRVNSLEEP"
+		(shape input)
+		(at 111.76 97.79 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "84b1d9f7-85f8-49a6-ae8b-8ef54912a199")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 98.0101 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "ELRS_TX"
 		(shape input)
 		(at 157.48 92.71 0)
@@ -3273,7 +3258,7 @@
 	)
 	(global_label "DRVIN3B"
 		(shape input)
-		(at 111.76 92.71 180)
+		(at 111.76 113.03 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3283,7 +3268,7 @@
 		)
 		(uuid "8e62f41a-9d99-44aa-b11a-88f9ce7a44a8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.7314 92.71 0)
+			(at 100.7314 113.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3293,9 +3278,31 @@
 			)
 		)
 	)
+	(global_label "PICO_VSYS"
+		(shape input)
+		(at 245.11 124.46 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "9014804f-67f9-4a16-ada0-b24e9d9f4f53")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 245.11 111.4357 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "DRVIN1B"
 		(shape input)
-		(at 111.76 82.55 180)
+		(at 111.76 102.87 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3305,12 +3312,34 @@
 		)
 		(uuid "9a509823-2e3e-43d2-ad0b-0871c2e5c95f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.7314 82.55 0)
+			(at 100.7314 102.87 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "PICO_VSYS"
+		(shape input)
+		(at 229.87 124.46 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "9df8195c-0d65-4302-91b1-6215f623f583")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 229.87 111.4357 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -3405,7 +3434,7 @@
 	)
 	(global_label "I2C_SDA"
 		(shape input)
-		(at 111.76 100.33 180)
+		(at 111.76 85.09 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3415,7 +3444,7 @@
 		)
 		(uuid "bf00932e-3742-4908-8321-138964e87a85")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 101.1548 100.33 0)
+			(at 101.1548 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3427,7 +3456,7 @@
 	)
 	(global_label "DRVIN4A"
 		(shape input)
-		(at 111.76 95.25 180)
+		(at 111.76 115.57 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3437,7 +3466,7 @@
 		)
 		(uuid "c65312e1-e725-4c22-82da-59108795f9dd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.9128 95.25 0)
+			(at 100.9128 115.57 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3469,9 +3498,31 @@
 			)
 		)
 	)
+	(global_label "PICO_VSYS"
+		(shape input)
+		(at 97.79 163.83 90)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d01da80c-9329-4098-be62-2a53367cbf4c")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 97.79 150.8057 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "DRVIN1A"
 		(shape input)
-		(at 111.76 80.01 180)
+		(at 111.76 100.33 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3481,7 +3532,7 @@
 		)
 		(uuid "d824b608-cf7e-4ab0-864d-91bcc519b7b9")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.9128 80.01 0)
+			(at 100.9128 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3493,7 +3544,7 @@
 	)
 	(global_label "DRVIN4B"
 		(shape input)
-		(at 111.76 97.79 180)
+		(at 111.76 118.11 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3503,7 +3554,7 @@
 		)
 		(uuid "e081be82-77fb-45e9-8022-235e1426b272")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.7314 97.79 0)
+			(at 100.7314 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3515,7 +3566,7 @@
 	)
 	(global_label "GPIO13"
 		(shape input)
-		(at 111.76 113.03 180)
+		(at 93.98 128.27 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3525,7 +3576,7 @@
 		)
 		(uuid "e264e2e6-fd84-4c9f-93cc-1c2059af3704")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 101.8805 113.03 0)
+			(at 84.1005 128.27 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3537,7 +3588,7 @@
 	)
 	(global_label "GPIO14"
 		(shape input)
-		(at 111.76 115.57 180)
+		(at 93.98 130.81 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3547,7 +3598,7 @@
 		)
 		(uuid "e5008e05-75db-44c4-b82d-8f7b208a77f4")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 101.8805 115.57 0)
+			(at 84.1005 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3662,72 +3713,6 @@
 			(project "rp2040-board"
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
 					(reference "#PWR016")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 229.87 124.46 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "1bc06923-9c6f-4142-b0cc-670771acc8f8")
-		(property "Reference" "#PWR09"
-			(at 229.87 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 229.87 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 229.87 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 229.87 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 229.87 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "16e96248-737c-48e6-bd71-2cea74ef5659")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "#PWR09")
 					(unit 1)
 				)
 			)
@@ -3940,73 +3925,6 @@
 			(project "rp2040-board"
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
 					(reference "#PWR011")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 55.88 99.06 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "312f0cf8-354b-40c5-9c93-9a4ec9836d4d")
-		(property "Reference" "#PWR04"
-			(at 59.69 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 52.07 99.0599 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 55.88 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 55.88 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 55.88 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3d02f188-e027-4793-8ac8-00ca6793601b")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "#PWR04")
 					(unit 1)
 				)
 			)
@@ -4294,72 +4212,6 @@
 			(project "rp2040-board"
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
 					(reference "#PWR012")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 245.11 124.46 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "3efce63d-1fa6-4c71-bd46-e6c537304c4e")
-		(property "Reference" "#PWR010"
-			(at 245.11 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 245.11 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 245.11 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 245.11 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 245.11 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "63ec3cdd-fda9-409e-abbb-38ae5f9a70be")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "#PWR010")
 					(unit 1)
 				)
 			)
@@ -4981,7 +4833,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+		(property "Footprint" "oled module:i2c oled display 0.96 inch VCC GND"
 			(at 34.29 171.45 0)
 			(effects
 				(font
@@ -5117,72 +4969,6 @@
 			(project ""
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
 					(reference "D1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 97.79 163.83 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "aa19c723-7ef0-4c7d-b732-192ea2c9041b")
-		(property "Reference" "#PWR019"
-			(at 97.79 167.64 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 97.79 158.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 97.79 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 97.79 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 97.79 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3023cb27-3366-46f7-b497-b5c2e7842fff")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "#PWR019")
 					(unit 1)
 				)
 			)
@@ -5606,7 +5392,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Module:RaspberryPi_Pico_Common_Unspecified"
+		(property "Footprint" "Module:RaspberryPi_Pico_Common_SMD"
 			(at 134.62 142.24 0)
 			(effects
 				(font
@@ -5824,138 +5610,6 @@
 			(project "rp2040-board"
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
 					(reference "#PWR03")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 214.63 124.46 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "e6595423-3901-4854-960d-bbf0580e9af7")
-		(property "Reference" "#PWR08"
-			(at 214.63 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 214.63 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 214.63 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 214.63 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 214.63 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "71cf30d6-f52f-4bc5-a1ee-3c1b5549a0bc")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "#PWR08")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+5V")
-		(at 199.39 124.46 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "f5319ab0-0655-4466-ba04-9f86e8e8e055")
-		(property "Reference" "#PWR07"
-			(at 199.39 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+5V"
-			(at 199.39 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 199.39 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 199.39 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 199.39 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "a1d6b509-24ea-4b46-bfe1-dea7989499a6")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "#PWR07")
 					(unit 1)
 				)
 			)

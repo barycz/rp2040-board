@@ -3000,6 +3000,28 @@
 			)
 		)
 	)
+	(global_label "PICO_VSYS"
+		(shape input)
+		(at 264.16 115.57 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "61521e96-f2f0-47e8-b1df-3d40ec6addfa")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 251.1357 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "DRVIN3A"
 		(shape input)
 		(at 111.76 110.49 180)
@@ -4249,6 +4271,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 264.16 120.65 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "3edaf735-6a12-4ae3-b40a-ab7451a454c5")
+		(property "Reference" "#PWR09"
+			(at 257.81 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 259.08 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" ""
+			(at 264.16 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 264.16 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 264.16 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f2602fac-9b24-476b-a328-99bdefd62fee")
+		)
+		(instances
+			(project "rp2040-board"
+				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
+					(reference "#PWR09")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 172.72 132.08 0)
 		(unit 1)
@@ -4322,6 +4411,73 @@
 			(project "rp2040-board"
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
 					(reference "C14")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 264.16 120.65 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5038a99d-48cd-46d4-b4b9-bf188519e01e")
+		(property "Reference" "TP4"
+			(at 269.24 119.3799 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 269.24 121.9199 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 264.16 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 264.16 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 264.16 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "196689f7-8885-4fe8-94d3-44c977a4a475")
+		)
+		(instances
+			(project "rp2040-board"
+				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
+					(reference "TP4")
 					(unit 1)
 				)
 			)
@@ -5837,6 +5993,73 @@
 			(project "rp2040-board"
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
 					(reference "#PWR04")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 264.16 115.57 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e813c9a9-5232-46ee-8a90-9bb53b14fa88")
+		(property "Reference" "TP3"
+			(at 269.24 114.2999 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 269.24 116.8399 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
+			(at 264.16 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 264.16 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 264.16 115.57 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a7a27a8f-9174-4dde-b8fb-74cffc5c360b")
+		)
+		(instances
+			(project "rp2040-board"
+				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
+					(reference "TP3")
 					(unit 1)
 				)
 			)

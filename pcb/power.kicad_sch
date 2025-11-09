@@ -3903,7 +3903,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "22uF"
+		(property "Value" "10uF"
 			(at 66.04 52.07 0)
 			(effects
 				(font
@@ -3939,7 +3939,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part" "C45783"
+		(property "LCSC Part" "C440198"
 			(at 64.77 49.53 0)
 			(effects
 				(font
@@ -4206,7 +4206,7 @@
 		(at 34.29 50.8 180)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -5327,6 +5327,15 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC Part" "C15127"
+			(at 138.43 128.27 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ab4b8466-978d-4450-9cad-6f02f73ad213")
 		)
@@ -5350,7 +5359,7 @@
 		(at 147.32 44.45 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -5638,7 +5647,7 @@
 		(at 229.87 57.15 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)

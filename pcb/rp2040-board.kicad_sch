@@ -5,26 +5,15 @@
 	(uuid "75fe2d07-4ff9-4014-b967-9ecbb30e480e")
 	(paper "A4")
 	(lib_symbols
-		(symbol "Connector:TestPoint"
-			(pin_numbers
-				(hide yes)
-			)
+		(symbol "Connector_Generic:Conn_01x03"
 			(pin_names
-				(offset 0.762)
+				(offset 1.016)
 				(hide yes)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "TP"
-				(at 0 6.858 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "TestPoint"
+			(property "Reference" "J"
 				(at 0 5.08 0)
 				(effects
 					(font
@@ -32,8 +21,16 @@
 					)
 				)
 			)
+			(property "Value" "Conn_01x03"
+				(at 0 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
 			(property "Footprint" ""
-				(at 5.08 0 0)
+				(at 0 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -42,15 +39,6 @@
 				)
 			)
 			(property "Datasheet" "~"
-				(at 5.08 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "test point"
 				(at 0 0 0)
 				(effects
 					(font
@@ -59,7 +47,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "test point tp"
+			(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
 				(at 0 0 0)
 				(effects
 					(font
@@ -68,7 +56,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_fp_filters" "Pin* Test*"
+			(property "ki_keywords" "connector"
 				(at 0 0 0)
 				(effects
 					(font
@@ -77,24 +65,64 @@
 					(hide yes)
 				)
 			)
-			(symbol "TestPoint_0_1"
-				(circle
-					(center 0 3.302)
-					(radius 0.762)
+			(property "ki_fp_filters" "Connector*:*_1x??_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Conn_01x03_1_1"
+				(rectangle
+					(start -1.27 3.81)
+					(end 1.27 -3.81)
 					(stroke
-						(width 0)
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(rectangle
+					(start -1.27 2.667)
+					(end 0 2.413)
+					(stroke
+						(width 0.1524)
 						(type default)
 					)
 					(fill
 						(type none)
 					)
 				)
-			)
-			(symbol "TestPoint_1_1"
+				(rectangle
+					(start -1.27 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
 				(pin passive line
-					(at 0 0 90)
-					(length 2.54)
-					(name "1"
+					(at -5.08 2.54 0)
+					(length 3.81)
+					(name "Pin_1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -102,6 +130,42 @@
 						)
 					)
 					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -949,7 +1013,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "LED:WS2812B-2020"
+		(symbol "LED:WS2812B"
 			(pin_names
 				(offset 0.254)
 			)
@@ -965,7 +1029,7 @@
 					(justify right bottom)
 				)
 			)
-			(property "Value" "WS2812B-2020"
+			(property "Value" "WS2812B"
 				(at 1.27 -5.715 0)
 				(effects
 					(font
@@ -974,7 +1038,7 @@
 					(justify left top)
 				)
 			)
-			(property "Footprint" "LED_SMD:LED_WS2812B-2020_PLCC4_2.0x2.0mm"
+			(property "Footprint" "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm"
 				(at 1.27 -7.62 0)
 				(effects
 					(font
@@ -984,7 +1048,7 @@
 					(hide yes)
 				)
 			)
-			(property "Datasheet" "https://cdn-shop.adafruit.com/product-files/4684/4684_WS2812B-2020_V1.3_EN.pdf"
+			(property "Datasheet" "https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf"
 				(at 2.54 -9.525 0)
 				(effects
 					(font
@@ -994,7 +1058,7 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "RGB LED with integrated controller, 2.0 x 2.0 mm, 12 mA"
+			(property "Description" "RGB LED with integrated controller"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1003,7 +1067,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_keywords" "RGB LED NeoPixel Nano addressable"
+			(property "ki_keywords" "RGB LED NeoPixel addressable"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1012,7 +1076,7 @@
 					(hide yes)
 				)
 			)
-			(property "ki_fp_filters" "LED*WS2812*-2020_PLCC4*"
+			(property "ki_fp_filters" "LED*WS2812*PLCC*5.0x5.0mm*P3.2mm*"
 				(at 0 0 0)
 				(effects
 					(font
@@ -1021,7 +1085,7 @@
 					(hide yes)
 				)
 			)
-			(symbol "WS2812B-2020_0_0"
+			(symbol "WS2812B_0_0"
 				(text "RGB"
 					(at 2.286 -4.191 0)
 					(effects
@@ -1031,7 +1095,7 @@
 					)
 				)
 			)
-			(symbol "WS2812B-2020_0_1"
+			(symbol "WS2812B_0_1"
 				(polyline
 					(pts
 						(xy 1.27 -2.54) (xy 1.778 -2.54)
@@ -1128,7 +1192,7 @@
 					)
 				)
 			)
-			(symbol "WS2812B-2020_1_1"
+			(symbol "WS2812B_1_1"
 				(pin input line
 					(at -7.62 0 0)
 					(length 2.54)
@@ -1139,7 +1203,7 @@
 							)
 						)
 					)
-					(number "3"
+					(number "4"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1157,7 +1221,7 @@
 							)
 						)
 					)
-					(number "4"
+					(number "1"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1175,7 +1239,7 @@
 							)
 						)
 					)
-					(number "2"
+					(number "3"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -1193,7 +1257,7 @@
 							)
 						)
 					)
-					(number "1"
+					(number "2"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -2483,6 +2547,131 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "power:+5V"
+			(power)
+			(pin_numbers
+				(hide yes)
+			)
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#PWR"
+				(at 0 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "+5V"
+				(at 0 3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Power symbol creates a global label with name \"+5V\""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "global power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "+5V_0_1"
+				(polyline
+					(pts
+						(xy -0.762 1.27) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0.762 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 2.54)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "+5V_1_1"
+				(pin power_in line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:GND"
 			(power)
 			(pin_numbers
@@ -2597,12 +2786,6 @@
 		(uuid "04c83c7a-cb0b-49a4-99bc-beb1e861a588")
 	)
 	(junction
-		(at 257.81 132.08)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "2dc5ee5b-7f02-46e8-8e16-25db466d5851")
-	)
-	(junction
 		(at 55.88 168.91)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2682,7 +2865,7 @@
 	)
 	(wire
 		(pts
-			(xy 252.73 132.08) (xy 257.81 132.08)
+			(xy 233.68 139.7) (xy 243.84 139.7)
 		)
 		(stroke
 			(width 0)
@@ -2732,16 +2915,6 @@
 	)
 	(wire
 		(pts
-			(xy 257.81 132.08) (xy 262.89 132.08)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c3068f99-4529-43ac-af35-781d3f63ecdd")
-	)
-	(wire
-		(pts
 			(xy 39.37 171.45) (xy 44.45 171.45)
 		)
 		(stroke
@@ -2749,16 +2922,6 @@
 			(type default)
 		)
 		(uuid "c668ea63-ce47-4729-a2a3-7e84beacee75")
-	)
-	(wire
-		(pts
-			(xy 257.81 132.08) (xy 257.81 129.54)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e97e1f00-10b4-4fb5-9ce9-28f8eae02254")
 	)
 	(wire
 		(pts
@@ -2793,28 +2956,6 @@
 		(uuid "04393c30-87c8-4608-a89e-fc43faa97e2e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 70.4766 168.91 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "LED_DOUT"
-		(shape input)
-		(at 262.89 132.08 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "0c3b9157-f426-403c-baf4-79492701f121")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 275.1885 132.08 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3000,28 +3141,6 @@
 			)
 		)
 	)
-	(global_label "PICO_VSYS"
-		(shape input)
-		(at 264.16 115.57 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "61521e96-f2f0-47e8-b1df-3d40ec6addfa")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 251.1357 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "DRVIN3A"
 		(shape input)
 		(at 111.76 110.49 180)
@@ -3046,7 +3165,7 @@
 	)
 	(global_label "PICO_VSYS"
 		(shape input)
-		(at 214.63 124.46 90)
+		(at 226.06 132.08 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3056,7 +3175,7 @@
 		)
 		(uuid "64ae21ab-c147-48c2-b5e7-c54d7cd3fd07")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 214.63 111.4357 90)
+			(at 226.06 119.0557 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3068,7 +3187,7 @@
 	)
 	(global_label "PICO_VSYS"
 		(shape input)
-		(at 199.39 124.46 90)
+		(at 210.82 132.08 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3078,7 +3197,7 @@
 		)
 		(uuid "65994ad1-3728-446c-82f5-4124d74ff17d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 199.39 111.4357 90)
+			(at 210.82 119.0557 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3264,28 +3383,6 @@
 			)
 		)
 	)
-	(global_label "PICO_VSYS"
-		(shape input)
-		(at 245.11 124.46 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "9014804f-67f9-4a16-ada0-b24e9d9f4f53")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 245.11 111.4357 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "DRVIN1B"
 		(shape input)
 		(at 111.76 102.87 180)
@@ -3304,28 +3401,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "PICO_VSYS"
-		(shape input)
-		(at 229.87 124.46 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "9df8195c-0d65-4302-91b1-6215f623f583")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 229.87 111.4357 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -3398,7 +3473,7 @@
 	)
 	(global_label "LED_DIN"
 		(shape input)
-		(at 191.77 132.08 180)
+		(at 203.2 139.7 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3408,7 +3483,7 @@
 		)
 		(uuid "ae941192-902d-4839-90a5-3b08c1f2ee6f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 181.1648 132.08 0)
+			(at 192.5948 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3574,7 +3649,7 @@
 	)
 	(global_label "PICO_VSYS"
 		(shape input)
-		(at 172.72 128.27 90)
+		(at 184.15 135.89 90)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3584,7 +3659,7 @@
 		)
 		(uuid "f5cff192-a6f7-4358-8511-ce459ce0a865")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 172.72 115.2457 90)
+			(at 184.15 122.8657 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3917,17 +3992,17 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 257.81 129.54 0)
+		(lib_id "Connector_Generic:Conn_01x03")
+		(at 248.92 142.24 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "3236b4d6-50ce-46b1-8c51-f4c6aaf9614d")
-		(property "Reference" "TP2"
-			(at 260.35 124.9679 0)
+		(uuid "2fefbb79-1d2c-49f7-8a95-dd853ae805c1")
+		(property "Reference" "J2"
+			(at 251.46 140.9699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3935,8 +4010,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "TestPoint"
-			(at 260.35 127.5079 0)
+		(property "Value" "Conn_01x03"
+			(at 251.46 143.5099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3944,8 +4019,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 262.89 129.54 0)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical"
+			(at 248.92 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3954,7 +4029,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 262.89 129.54 0)
+			(at 248.92 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3962,8 +4037,79 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "test point"
-			(at 257.81 129.54 0)
+		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 248.92 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "1bf66327-3648-4d5c-a36b-cfe603aa0208")
+		)
+		(pin "1"
+			(uuid "af5ca8f9-0241-47e2-80b9-54ad75a6f9f4")
+		)
+		(pin "3"
+			(uuid "1233c2ca-6cd6-4816-9506-1abbe6e6a3a3")
+		)
+		(instances
+			(project ""
+				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
+					(reference "J2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 243.84 142.24 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "30880762-552b-462f-9745-8d1a041b5152")
+		(property "Reference" "#PWR010"
+			(at 247.65 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 239.268 142.494 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 243.84 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 243.84 142.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 243.84 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3972,12 +4118,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "2143cb06-0c71-4709-90c4-a5248d2f8c8f")
+			(uuid "e8d57631-cc31-46f9-be93-234c0b0f4ec5")
 		)
 		(instances
 			(project "rp2040-board"
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "TP2")
+					(reference "#PWR010")
 					(unit 1)
 				)
 			)
@@ -4138,74 +4284,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 245.11 139.7 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "3afc534e-28d7-444a-aae5-ad10fbf5664e")
-		(property "Reference" "#PWR015"
-			(at 245.11 146.05 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 245.11 144.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 245.11 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 245.11 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 245.11 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "eefaa9fa-2297-461a-a089-9a66ece34d3b")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "#PWR015")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 199.39 139.7 0)
+		(at 210.82 147.32 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4214,7 +4293,7 @@
 		(fields_autoplaced yes)
 		(uuid "3d01912e-46a1-4c18-9ca5-daea5d7df3c7")
 		(property "Reference" "#PWR012"
-			(at 199.39 146.05 0)
+			(at 210.82 153.67 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4223,7 +4302,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 199.39 144.78 0)
+			(at 210.82 152.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4232,7 +4311,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 199.39 139.7 0)
+			(at 210.82 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4241,7 +4320,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 199.39 139.7 0)
+			(at 210.82 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4250,7 +4329,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 199.39 139.7 0)
+			(at 210.82 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4272,7 +4351,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 264.16 120.65 270)
+		(at 243.84 144.78 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4281,7 +4360,7 @@
 		(fields_autoplaced yes)
 		(uuid "3edaf735-6a12-4ae3-b40a-ab7451a454c5")
 		(property "Reference" "#PWR09"
-			(at 257.81 120.65 0)
+			(at 237.49 144.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4290,7 +4369,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 259.08 120.65 0)
+			(at 238.76 144.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4299,7 +4378,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 264.16 120.65 0)
+			(at 243.84 144.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4308,7 +4387,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 264.16 120.65 0)
+			(at 243.84 144.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4317,7 +4396,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 264.16 120.65 0)
+			(at 243.84 144.78 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4339,7 +4418,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 172.72 132.08 0)
+		(at 184.15 139.7 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4348,7 +4427,7 @@
 		(fields_autoplaced yes)
 		(uuid "4ca99930-7bca-49fc-8d2a-afc35fda7d51")
 		(property "Reference" "C14"
-			(at 176.53 130.8099 0)
+			(at 187.96 138.4299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4357,7 +4436,7 @@
 			)
 		)
 		(property "Value" "1uF"
-			(at 176.53 133.3499 0)
+			(at 187.96 140.9699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4366,7 +4445,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
-			(at 173.6852 135.89 0)
+			(at 185.1152 143.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4375,7 +4454,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 172.72 132.08 0)
+			(at 184.15 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4384,7 +4463,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 172.72 132.08 0)
+			(at 184.15 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4393,7 +4472,7 @@
 			)
 		)
 		(property "LCSC Part" "C28323"
-			(at 172.72 132.08 0)
+			(at 184.15 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4417,159 +4496,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 264.16 120.65 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "5038a99d-48cd-46d4-b4b9-bf188519e01e")
-		(property "Reference" "TP4"
-			(at 269.24 119.3799 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 269.24 121.9199 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 264.16 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 264.16 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 264.16 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "196689f7-8885-4fe8-94d3-44c977a4a475")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "TP4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "LED:WS2812B-2020")
-		(at 229.87 132.08 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5094252c-5dbd-4a21-9b17-71967a207b77")
-		(property "Reference" "D3"
-			(at 232.41 125.476 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "WS2812B-2020"
-			(at 229.87 144.272 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_WS2812B-2020_PLCC4_2.0x2.0mm"
-			(at 231.14 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://cdn-shop.adafruit.com/product-files/4684/4684_WS2812B-2020_V1.3_EN.pdf"
-			(at 232.41 141.605 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Description" "RGB LED with integrated controller, 2.0 x 2.0 mm, 12 mA"
-			(at 229.87 132.08 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC Part" "C965555"
-			(at 229.87 132.08 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "663fcb1f-81c6-45bc-8d1e-54e4d247d6a7")
-		)
-		(pin "2"
-			(uuid "365dfd06-a63b-46e5-b70b-cf19457926ca")
-		)
-		(pin "1"
-			(uuid "25a7e7bc-535a-4f51-8ca0-732cb8a1f638")
-		)
-		(pin "4"
-			(uuid "beebb66b-2cc1-404c-9cae-4d952ada932f")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "D3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
-		(at 214.63 139.7 0)
+		(at 226.06 147.32 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4578,7 +4506,7 @@
 		(fields_autoplaced yes)
 		(uuid "540a9087-8108-4688-a715-f2568c6d3bee")
 		(property "Reference" "#PWR013"
-			(at 214.63 146.05 0)
+			(at 226.06 153.67 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4587,7 +4515,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 214.63 144.78 0)
+			(at 226.06 152.4 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4596,7 +4524,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 214.63 139.7 0)
+			(at 226.06 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4605,7 +4533,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 214.63 139.7 0)
+			(at 226.06 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4614,7 +4542,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 214.63 139.7 0)
+			(at 226.06 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4696,73 +4624,6 @@
 			(project "rp2040-board"
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
 					(reference "#PWR020")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 229.87 139.7 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "7b8b76bd-6086-4e35-b6f5-d8fd456332f1")
-		(property "Reference" "#PWR014"
-			(at 229.87 146.05 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 229.87 144.78 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" ""
-			(at 229.87 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 229.87 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 229.87 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "6364cb9f-e286-4941-a33a-25dcc77777c9")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "#PWR014")
 					(unit 1)
 				)
 			)
@@ -4925,7 +4786,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 172.72 135.89 0)
+		(at 184.15 143.51 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4934,7 +4795,7 @@
 		(fields_autoplaced yes)
 		(uuid "88a03c2f-301b-40a2-a8e0-5ac22c306f96")
 		(property "Reference" "#PWR03"
-			(at 172.72 142.24 0)
+			(at 184.15 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4943,7 +4804,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 172.72 140.97 0)
+			(at 184.15 148.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4952,7 +4813,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 172.72 135.89 0)
+			(at 184.15 143.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4961,7 +4822,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 172.72 135.89 0)
+			(at 184.15 143.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4970,7 +4831,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 172.72 135.89 0)
+			(at 184.15 143.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5067,90 +4928,6 @@
 			(project "rp2040-board"
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
 					(reference "J3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "LED:WS2812B-2020")
-		(at 199.39 132.08 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "996b8269-b745-492a-9143-a837fef0b1e2")
-		(property "Reference" "D1"
-			(at 201.93 125.476 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "WS2812B-2020"
-			(at 199.39 144.272 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_WS2812B-2020_PLCC4_2.0x2.0mm"
-			(at 200.66 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://cdn-shop.adafruit.com/product-files/4684/4684_WS2812B-2020_V1.3_EN.pdf"
-			(at 201.93 141.605 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Description" "RGB LED with integrated controller, 2.0 x 2.0 mm, 12 mA"
-			(at 199.39 132.08 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC Part" "C965555"
-			(at 199.39 132.08 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "e2309423-9d7f-4c0f-8c42-d248ecbd4dae")
-		)
-		(pin "2"
-			(uuid "ef6fe3c2-12bf-4505-80a2-10721d4c394e")
-		)
-		(pin "1"
-			(uuid "68dfab72-959c-4ecc-8805-d5912cf12f4f")
-		)
-		(pin "4"
-			(uuid "3ac7cde4-24e5-41b3-8c93-d2de6852c7f2")
-		)
-		(instances
-			(project ""
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "D1")
 					(unit 1)
 				)
 			)
@@ -5363,6 +5140,90 @@
 			(project "rp2040-board"
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
 					(reference "#PWR018")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "LED:WS2812B")
+		(at 226.06 139.7 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "afe2289c-a3f1-429f-8ba4-fd6c08a2ae63")
+		(property "Reference" "D3"
+			(at 228.854 133.096 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "WS2812B"
+			(at 231.394 146.558 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm"
+			(at 227.33 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf"
+			(at 228.6 149.225 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(property "Description" "RGB LED with integrated controller"
+			(at 226.06 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC Part" "C42417498"
+			(at 226.06 139.7 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "099cb4f1-2d1e-40f2-b513-592a4fefe41d")
+		)
+		(pin "4"
+			(uuid "91abd29d-5ea2-4e04-b659-28e34a6d4a5e")
+		)
+		(pin "2"
+			(uuid "8a5bada4-396c-49ef-997b-e63ea0478aac")
+		)
+		(pin "1"
+			(uuid "19f456a6-daad-47c3-ad11-1f155e66d944")
+		)
+		(instances
+			(project ""
+				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
+					(reference "D3")
 					(unit 1)
 				)
 			)
@@ -5591,90 +5452,6 @@
 			(project ""
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
 					(reference "J1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "LED:WS2812B-2020")
-		(at 245.11 132.08 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "ce182dbc-da4a-4ca8-a9f5-e515dd825112")
-		(property "Reference" "D4"
-			(at 247.65 125.476 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "WS2812B-2020"
-			(at 245.11 144.272 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "LED_SMD:LED_WS2812B-2020_PLCC4_2.0x2.0mm"
-			(at 246.38 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://cdn-shop.adafruit.com/product-files/4684/4684_WS2812B-2020_V1.3_EN.pdf"
-			(at 247.65 141.605 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Description" "RGB LED with integrated controller, 2.0 x 2.0 mm, 12 mA"
-			(at 245.11 132.08 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "LCSC Part" "C965555"
-			(at 245.11 132.08 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "3"
-			(uuid "01f933fa-cf35-43cf-a69c-f9c0ac885bb2")
-		)
-		(pin "2"
-			(uuid "74fb0b71-f25a-4ddf-b452-c9f64ada3e3e")
-		)
-		(pin "1"
-			(uuid "3b15b329-4f35-47fe-a36b-81a8de8deb67")
-		)
-		(pin "4"
-			(uuid "360f57c1-490e-46cc-a87a-a6f2efd6c65d")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "D4")
 					(unit 1)
 				)
 			)
@@ -5999,109 +5776,32 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 264.16 115.57 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "e813c9a9-5232-46ee-8a90-9bb53b14fa88")
-		(property "Reference" "TP3"
-			(at 269.24 114.2999 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 269.24 116.8399 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Pad_D1.0mm"
-			(at 264.16 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 264.16 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 264.16 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "a7a27a8f-9174-4dde-b8fb-74cffc5c360b")
-		)
-		(instances
-			(project "rp2040-board"
-				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "TP3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "LED:WS2812B-2020")
-		(at 214.63 132.08 0)
+		(lib_id "LED:WS2812B")
+		(at 210.82 139.7 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "ff420a85-f706-4b54-a9fa-aad34dc0d4d1")
-		(property "Reference" "D2"
-			(at 217.17 125.476 0)
+		(uuid "e662e819-17c8-4173-b582-0499b1bdfdcd")
+		(property "Reference" "D1"
+			(at 213.614 133.096 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "WS2812B-2020"
-			(at 214.63 144.272 0)
+		(property "Value" "WS2812B"
+			(at 216.154 146.558 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_WS2812B-2020_PLCC4_2.0x2.0mm"
-			(at 215.9 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://cdn-shop.adafruit.com/product-files/4684/4684_WS2812B-2020_V1.3_EN.pdf"
-			(at 217.17 141.605 0)
+		(property "Footprint" "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm"
+			(at 212.09 147.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6110,8 +5810,18 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "RGB LED with integrated controller, 2.0 x 2.0 mm, 12 mA"
-			(at 214.63 132.08 0)
+		(property "Datasheet" "https://cdn-shop.adafruit.com/datasheets/WS2812B.pdf"
+			(at 213.36 149.225 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(property "Description" "RGB LED with integrated controller"
+			(at 210.82 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6119,8 +5829,8 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC Part" "C965555"
-			(at 214.63 132.08 0)
+		(property "LCSC Part" "C42417498"
+			(at 210.82 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6129,21 +5839,21 @@
 			)
 		)
 		(pin "3"
-			(uuid "9abd1a49-4e0b-4231-a504-e2f57f7f5005")
-		)
-		(pin "2"
-			(uuid "0d50695c-c91a-4a3a-b142-f91c9e85e95f")
-		)
-		(pin "1"
-			(uuid "afbf98a8-627f-4fc3-b893-eb0e57e45ea0")
+			(uuid "a44bbbbf-1744-4769-9c4e-cc3bd89dbb4d")
 		)
 		(pin "4"
-			(uuid "32934735-f0f2-4c90-9f67-9ee9cbb54b04")
+			(uuid "c6dbdc97-3a50-40ab-8119-2b2274658b55")
+		)
+		(pin "2"
+			(uuid "6db66708-d145-4151-b6ed-10ee8a94d8a1")
+		)
+		(pin "1"
+			(uuid "2a7d6a1c-bf81-440d-b45f-89e2d58b8088")
 		)
 		(instances
 			(project "rp2040-board"
 				(path "/75fe2d07-4ff9-4014-b967-9ecbb30e480e"
-					(reference "D2")
+					(reference "D1")
 					(unit 1)
 				)
 			)

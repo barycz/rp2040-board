@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <memory>
+#include <array>
 
 #include "CrsfSerial.h"
 

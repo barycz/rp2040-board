@@ -110,6 +110,8 @@ add_executable(crsf-bridge
 	lib/CRServoF/crc8/crc8.cpp
 )
 
+pico_generate_pio_header(crsf-bridge ${CMAKE_CURRENT_LIST_DIR}/lib/ws2812/ws2812.pio)
+
 target_include_directories(crsf-bridge PUBLIC
 	src/crsf-bridge
 	src/crsf-bridge/CRServoF/crc8
@@ -126,6 +128,7 @@ target_link_libraries(crsf-bridge
 	pico_stdlib
 	pico_unique_id
 	hardware_pwm
+	hardware_pio
 	tinyusb_device
 	tinyusb_board
 )

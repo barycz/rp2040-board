@@ -12,18 +12,18 @@
 #include "hardware/uart.h"
 #include "hardware/timer.h"
 #include "hardware/pwm.h"
+#include "hardware/pio.h"
 
 #include "bsp/board.h"
 #include "tusb.h"
 
-const uint LedYellow = 26;
-const uint LedRed = 27;
+#include "ws2812.pio.h"
 
-const uint AudioPwm = 22;
+const uint LedYellow = 25;
+const uint LedStripPin = 6;
 
-const uint RotaryA = 17;
-const uint RotaryB = 18;
-const uint RotarySW = 19;
+PIO LedStripPio;
+uint LedStripSm;
 
 const uint CrsfTx = 20;
 const uint CrsfRx = 21;
@@ -31,18 +31,16 @@ const int CrsfMin = 989;
 const int CrsfMax = 2011;
 const uint CrsfStickCount = 4;
 
-const uint JoystickPins[] = {28, 29};
-const uint JoystickInputs[] = {2, 3};
-
 const uint MidiCable = 0;
 const uint MidiChannel = 0;
 const uint MidiDataMask = 0x7f; // 7bits
 
 // successive GPIO pins are mapped to succesive PWM channels and slices
-const uint MotorPwmOutPinsFirst = 0;
+const uint MotorPwmOutPinsFirst = 8;
 const uint MotorPwmPeriodUs = 1000;
 const uint MotorPwmClkDivider = SYS_CLK_KHZ / 1000;
 const uint MotorCount = 4;
+const uint MotorDrvNSleep = 7;
 
 std::array<uint, MotorCount> MotorPwmSlices;
 
@@ -56,6 +54,17 @@ struct MidiControllerData {
 
 static const uint ControllerDataMaxCount = 2;
 using ControllerDataArray = std::array<MidiControllerData, ControllerDataMaxCount>;
+
+static inline void ledstrip_put_pixel(PIO pio, uint sm, uint32_t pixel_grb) {
+	pio_sm_put_blocking(pio, sm, pixel_grb << 8u);
+}
+
+static inline uint32_t urgb_u32(uint8_t r, uint8_t g, uint8_t b) {
+	return
+		((uint32_t) (r) << 8) |
+		((uint32_t) (g) << 16) |
+		(uint32_t) (b);
+}
 
 void midi_task(const ControllerDataArray& dataArray) {
 	// discard incoming trafic
@@ -199,17 +208,16 @@ void init() {
 	gpio_init(LedYellow);
 	gpio_set_dir(LedYellow, GPIO_OUT);
 
-	gpio_init(LedRed);
-	gpio_set_dir(LedRed, GPIO_OUT);
+	uint offset;
+	if (pio_claim_free_sm_and_add_program_for_gpio_range(
+		&ws2812_program, &LedStripPio, &LedStripSm, &offset, LedStripPin, 1, true) == false ) {
+		assert(false);
+	}
 
-	gpio_init(RotaryA);
-	gpio_pull_up(RotaryA);
+	ws2812_program_init(LedStripPio, LedStripSm, offset, LedStripPin, 800000, false);
 
-	gpio_init(RotaryB);
-	gpio_pull_up(RotaryB);
-
-	gpio_init(RotarySW);
-	gpio_pull_up(RotarySW);
+	gpio_init(MotorDrvNSleep);
+	gpio_set_dir(MotorDrvNSleep, GPIO_OUT);
 
 	for (uint motor = 0; motor < MotorCount; ++motor) {
 		const uint pinA = MotorPwmOutPinsFirst + motor * 2;
@@ -230,6 +238,8 @@ void init() {
 		MotorPwmSlices[motor] = PwmSlice;
 	}
 
+	gpio_put(MotorDrvNSleep, true);
+
 	gpio_set_function(CrsfTx, GPIO_FUNC_UART);
 	gpio_set_function(CrsfRx, GPIO_FUNC_UART);
 
@@ -246,6 +256,13 @@ void update() {
 	crsf.loop();
 	tud_task();
 	crsf_bridge_update();
+
+	if (crsf.isLinkUp()) {
+		ledstrip_put_pixel(LedStripPio, LedStripSm, urgb_u32(0x0, 0xff, 0x0));
+	} else {
+		ledstrip_put_pixel(LedStripPio, LedStripSm, urgb_u32(0xff, 0x0, 0x0));
+	}
+	ledstrip_put_pixel(LedStripPio, LedStripSm, urgb_u32(0x0, 0x0, 0xff));
 
 	gpio_put(LedYellow, 0);
 	sleep_ms(10);
